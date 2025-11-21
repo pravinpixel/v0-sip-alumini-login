@@ -658,6 +658,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         option.textContent = city.name;
                         citySelect.appendChild(option);
                     });
+                    
+                    // Add "Other" option at the end
+                    const otherOption = document.createElement('option');
+                    otherOption.value = 'others';
+                    otherOption.textContent = 'Other';
+                    citySelect.appendChild(otherOption);
+                    
                     citySelect.disabled = false;
                 } else {
                     citySelect.innerHTML = '<option value="" disabled selected>No data found</option>';
@@ -701,7 +708,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Handle city "Other" option
         citySelect.addEventListener('change', function() {
             const cityOtherInput = document.getElementById('city_other');
-            if (this.value === 'Other') {
+            if (this.value === 'others') {
                 cityOtherInput.style.display = 'block';
                 cityOtherInput.required = true;
                 this.required = false;
@@ -877,17 +884,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            const cityId = cityValue === 'Other' ? cityOther : cityValue;
-            
             const payload = {
                 full_name: fullName,
                 year_of_completion: parseInt(yearOfCompletion),
                 state_id: parseInt(stateId),
-                city_id: parseInt(cityId),
                 email: email,
                 mobile_number: mobileNumber,
                 occupation: occupation
             };
+            
+            // Handle city or other_city
+            if (cityValue === 'others') {
+                if (!cityOther) {
+                    alert('Validation Error: Please enter your city name.');
+                    return;
+                }
+                payload.city_id = 'others';
+                payload.other_city = cityOther;
+            } else {
+                payload.city_id = parseInt(cityValue);
+            }
             
             const submitButton = this.querySelector('button[type="submit"]');
             const originalText = submitButton.textContent;
@@ -909,6 +925,31 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(data => {
                 if (data.status === true || data.success === true) {
+                    // Reset form
+                    registrationForm.reset();
+                    
+                    // Reset hidden fields and states
+                    mobileVerified.value = '0';
+                    mobileInput.readOnly = false;
+                    verificationStatus.textContent = '';
+                    verificationStatus.style.display = 'none';
+                    verifyBtn.classList.remove('d-none');
+                    verifyBtn.textContent = 'Verify';
+                    verifyBtn.disabled = true;
+                    otpInput.classList.remove('otp-input-visible');
+                    otpInput.classList.add('otp-input-field');
+                    otpInput.value = '';
+                    
+                    // Reset occupation placeholder
+                    occupationPlaceholder.textContent = 'Select Occupation / Field of Study';
+                    occupationPlaceholder.classList.remove('occupation-selected');
+                    occupationPlaceholder.classList.add('occupation-placeholder');
+                    
+                    // Reset city dropdown
+                    citySelect.innerHTML = '<option value="" disabled selected>Select City</option>';
+                    citySelect.disabled = true;
+                    document.getElementById('city_other').style.display = 'none';
+                    
                     alert('Success! Registration completed successfully. You will be redirected to the thank you page.');
                     window.location.href = 'thankyou.html';
                 } else {
