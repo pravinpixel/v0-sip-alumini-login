@@ -296,7 +296,7 @@
             <div class="content" data-aos="fade-right">
                 <h2 class="common_heading">Join the SIP<br class="desktop_break"><span class="red white_line">Alumni Circle</span></h2>
                 <p>We’d love to hear where your journey has taken you. Whether you're pursuing academics, working in your dream job, or making a difference in your community, your story inspires us.</p>
-                <form action="send_mail.php" method="post">
+                <form id="alumni-registration-form" method="post">
                     <input type="text" name="name" placeholder="Full Name" pattern="[A-Za-z\s]+" title="Please enter a valid name (letters and spaces only)" required>
                     <input type="text" name="completion_year" placeholder="Year of Completion" pattern="\d{4}" maxlength="4" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);" title="Please enter a valid 4-digit year" required>
                     <select name="state" id="state" required>
@@ -307,10 +307,25 @@
                     </select>
                     <input type="text" name="city_other" id="city_other" placeholder="Enter your city" style="display: none;" pattern="[A-Za-z\s]+" title="Please enter a valid city name">
                     <input type="email" name="email" placeholder="Email Address" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address" required>
-                    <input type="tel" name="contact" placeholder="Contact Number" pattern="[0-9]{10,13}" oninput="this.value = this.value.replace(/[^0-9]/g, '');" minlength="10" maxlength="13" title="Please enter a valid phone number (10-13 digits)" required>
-                    <div class="autocomplete-wrapper">
-                        <input type="text" id="occupation" name="occupation" placeholder="Current Occupation / Field of Study" autocomplete="off" required>
-                        <div id="occupation-suggestions" class="autocomplete-suggestions"></div>
+                    <div class="mobile-verify-wrapper">
+                        <input type="tel" id="mobile-number" name="contact" class="mobile-input" placeholder="Contact Number (10 digits)" pattern="[0-9]{10}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);" minlength="10" maxlength="10" title="Please enter a valid 10-digit phone number" required>
+                        <button type="button" id="verify-mobile-btn" class="verify-btn" disabled>Verify</button>
+                        <span id="verification-status" class="verify-status"></span>
+                    </div>
+                    <input type="text" id="otp-input" class="otp-input-field" placeholder="Enter OTP" maxlength="6" pattern="[0-9]{6}" inputmode="numeric">
+                    <input type="hidden" id="mobile-verified" value="0">
+                    <div class="occupation-wrapper">
+                        <div id="occupation-select-wrapper" class="occupation-select-wrapper">
+                            <div id="occupation-trigger" class="occupation-trigger">
+                                <span id="occupation-placeholder" class="occupation-placeholder">Select Occupation / Field of Study</span>
+                                <span class="occupation-arrow">▼</span>
+                            </div>
+                            <div id="occupation-dropdown" class="occupation-dropdown">
+                                <input type="text" id="occupation-search" class="occupation-search" placeholder="Search or type to add..." autocomplete="off">
+                                <div id="occupation-options" class="occupation-options"></div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="occupation" name="occupation" required>
                     </div>
                     <button type="submit" class="common_btn">Join the Alumni Network</button>
                 </form>
@@ -497,60 +512,109 @@
 
 
 <script>
-// Autocomplete functionality for occupation field
+// Occupation select with search
 document.addEventListener('DOMContentLoaded', function() {
-    const occupationInput = document.getElementById('occupation');
-    const suggestionsDiv = document.getElementById('occupation-suggestions');
+    const occupationTrigger = document.getElementById('occupation-trigger');
+    const occupationDropdown = document.getElementById('occupation-dropdown');
+    const occupationSearch = document.getElementById('occupation-search');
+    const occupationOptions = document.getElementById('occupation-options');
+    const occupationPlaceholder = document.getElementById('occupation-placeholder');
+    const occupationHidden = document.getElementById('occupation');
+    let allOccupations = [];
     
-    if (occupationInput && suggestionsDiv) {
-        let debounceTimer;
+    if (occupationTrigger && occupationDropdown) {
+        // Fetch occupations from API
+        fetch('https://sip-admin.designonline.in/api/essentials?required=occupation', {
+            method: 'GET',
+            headers: {'Content-Type': 'application/json'}
+        })
+        .then(response => response.json())
+        .then(apiData => {
+            if (apiData && apiData.data && apiData.data.occupation && Array.isArray(apiData.data.occupation)) {
+                allOccupations = apiData.data.occupation.map(occ => occ.name);
+                renderOptions(allOccupations);
+            }
+        })
+        .catch(error => console.warn('Could not load occupations:', error));
         
-        occupationInput.addEventListener('input', function() {
-            clearTimeout(debounceTimer);
-            const query = this.value.trim();
+        // Fetch from database
+        fetch('get_occupations.php?q=')
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    allOccupations = [...new Set([...allOccupations, ...data])];
+                    renderOptions(allOccupations);
+                }
+            })
+            .catch(() => {});
+        
+        function renderOptions(occupations, searchQuery = '') {
+            occupationOptions.innerHTML = '';
             
-            if (query.length < 2) {
-                suggestionsDiv.innerHTML = '';
-                suggestionsDiv.style.display = 'none';
+            if (searchQuery && occupations.length === 0) {
+                const addOption = document.createElement('div');
+                addOption.style.cssText = 'padding: 12px 15px; cursor: pointer; color: #249829; font-style: italic;';
+                addOption.innerHTML = '<strong>Add:</strong> "' + searchQuery + '"';
+                addOption.addEventListener('click', function() {
+                    selectOccupation(searchQuery);
+                    allOccupations.unshift(searchQuery);
+                });
+                occupationOptions.appendChild(addOption);
                 return;
             }
             
-            debounceTimer = setTimeout(() => {
-                fetch('get_occupations.php?q=' + encodeURIComponent(query))
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.length > 0) {
-                            suggestionsDiv.innerHTML = '';
-                            data.forEach(item => {
-                                const div = document.createElement('div');
-                                div.className = 'suggestion-item';
-                                div.textContent = item;
-                                div.addEventListener('click', function() {
-                                    occupationInput.value = item;
-                                    suggestionsDiv.innerHTML = '';
-                                    suggestionsDiv.style.display = 'none';
-                                });
-                                suggestionsDiv.appendChild(div);
-                            });
-                            suggestionsDiv.style.display = 'block';
-                        } else {
-                            suggestionsDiv.innerHTML = '';
-                            suggestionsDiv.style.display = 'none';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching suggestions:', error);
-                        suggestionsDiv.innerHTML = '';
-                        suggestionsDiv.style.display = 'none';
-                    });
-            }, 300);
+            occupations.forEach(occ => {
+                const option = document.createElement('div');
+                option.style.cssText = 'padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #f5f5f5;';
+                option.textContent = occ;
+                option.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = '#f8f8f8';
+                });
+                option.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = 'white';
+                });
+                option.addEventListener('click', function() {
+                    selectOccupation(occ);
+                });
+                occupationOptions.appendChild(option);
+            });
+        }
+        
+        function selectOccupation(value) {
+            occupationPlaceholder.textContent = value;
+            occupationPlaceholder.classList.remove('occupation-placeholder');
+            occupationPlaceholder.classList.add('occupation-selected');
+            occupationHidden.value = value;
+            occupationDropdown.classList.remove('occupation-dropdown-open');
+            occupationSearch.value = '';
+        }
+        
+        // Toggle dropdown
+        occupationTrigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            occupationDropdown.classList.toggle('occupation-dropdown-open');
+            if (occupationDropdown.classList.contains('occupation-dropdown-open')) {
+                occupationSearch.focus();
+            }
         });
         
-        // Close suggestions when clicking outside
+        // Search
+        occupationSearch.addEventListener('input', function() {
+            const query = this.value.trim();
+            if (query === '') {
+                renderOptions(allOccupations);
+            } else {
+                const filtered = allOccupations.filter(occ => 
+                    occ.toLowerCase().includes(query.toLowerCase())
+                );
+                renderOptions(filtered, query);
+            }
+        });
+        
+        // Close on outside click
         document.addEventListener('click', function(e) {
-            if (e.target !== occupationInput && e.target !== suggestionsDiv) {
-                suggestionsDiv.innerHTML = '';
-                suggestionsDiv.style.display = 'none';
+            if (!occupationTrigger.contains(e.target) && !occupationDropdown.contains(e.target)) {
+                occupationDropdown.classList.remove('occupation-dropdown-open');
             }
         });
     }
@@ -630,8 +694,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (cities.length > 0) {
                     cities.forEach(city => {
                         const option = document.createElement('option');
-                        option.value = typeof city === 'object' ? (city.name || city.city_name) : city;
-                        option.textContent = typeof city === 'object' ? (city.name || city.city_name) : city;
+                        // Store city ID as value, display name as text
+                        if (typeof city === 'object') {
+                            option.value = city.id || city.city_id || city.name || city.city_name;
+                            option.textContent = city.name || city.city_name;
+                        } else {
+                            option.value = city;
+                            option.textContent = city;
+                        }
                         citySelect.appendChild(option);
                     });
                     citySelect.disabled = false;
@@ -656,10 +726,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     'Kota', 'Chandigarh', 'Guwahati', 'Other'
                 ];
                 
-                commonCities.forEach(city => {
+                commonCities.forEach((city, index) => {
                     const option = document.createElement('option');
-                    option.value = city;
+                    // Use index as ID for fallback cities
+                    option.value = index + 1;
                     option.textContent = city;
+                    option.dataset.cityName = city;
                     citySelect.appendChild(option);
                 });
                 
@@ -735,6 +807,233 @@ document.addEventListener('DOMContentLoaded', function() {
                 cityOtherInput.required = false;
                 this.required = true;
             }
+        });
+    }
+    
+    // Mobile OTP Verification
+    const mobileInput = document.getElementById('mobile-number');
+    const verifyBtn = document.getElementById('verify-mobile-btn');
+    const otpInput = document.getElementById('otp-input');
+    const verificationStatus = document.getElementById('verification-status');
+    const mobileVerified = document.getElementById('mobile-verified');
+    let currentMobile = '';
+    
+    if (mobileInput && verifyBtn) {
+        // Enable verify button when mobile is valid (exactly 10 digits)
+        mobileInput.addEventListener('input', function() {
+            if (this.value.length === 10) {
+                verifyBtn.disabled = false;
+            } else {
+                verifyBtn.disabled = true;
+            }
+        });
+        
+        // Send OTP
+        verifyBtn.addEventListener('click', function() {
+            const mobile = mobileInput.value.trim();
+            if (mobile.length !== 10) {
+                alert('Please enter a valid 10-digit mobile number');
+                return;
+            }
+            
+            currentMobile = mobile;
+            verifyBtn.textContent = 'Sending...';
+            verifyBtn.disabled = true;
+            
+            const formData = new FormData();
+            formData.append('mobile_number', mobile);
+            
+            fetch('https://sip-admin.designonline.in/api/send-otp', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status || data.success) {
+                    // Show OTP in alert if available
+                    let alertMessage = 'OTP sent to ' + mobile;
+                    if (data.otp) {
+                        alertMessage += '\n\nYour OTP is: ' + data.otp;
+                    } else if (data.data && data.data.otp) {
+                        alertMessage += '\n\nYour OTP is: ' + data.data.otp;
+                    }
+                    alert(alertMessage);
+                    
+                    verifyBtn.classList.add('d-none');
+                    otpInput.classList.remove('otp-input-field');
+                    otpInput.classList.add('otp-input-visible');
+                    otpInput.required = true;
+                    otpInput.focus();
+                } else {
+                    alert('Failed to send OTP: ' + (data.message || 'Please try again'));
+                    verifyBtn.textContent = 'Verify';
+                    verifyBtn.disabled = false;
+                }
+            })
+            .catch(error => {
+                alert('Failed to send OTP. Please try again.');
+                verifyBtn.textContent = 'Verify';
+                verifyBtn.disabled = false;
+            });
+        });
+    }
+    
+    // Verify OTP
+    if (otpInput) {
+        otpInput.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            
+            if (this.value.length === 6) {
+                const otp = this.value;
+                const formData = new FormData();
+                formData.append('mobile_number', currentMobile);
+                formData.append('otp', otp);
+                
+                fetch('https://sip-admin.designonline.in/api/verify-otp', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status || data.success) {
+                        mobileVerified.value = '1';
+                        mobileInput.readOnly = true;
+                        otpInput.classList.remove('otp-input-visible');
+                        otpInput.classList.add('otp-input-field');
+                        verificationStatus.textContent = '✓ Verified';
+                        verificationStatus.style.color = '#249829';
+                        verificationStatus.style.display = 'block';
+                        alert('Mobile number verified successfully!');
+                    } else {
+                        alert('Invalid OTP: ' + (data.message || 'Please try again'));
+                        otpInput.value = '';
+                    }
+                })
+                .catch(error => {
+                    alert('Failed to verify OTP. Please try again.');
+                    otpInput.value = '';
+                });
+            }
+        });
+    }
+    
+    // Form submission
+    const registrationForm = document.getElementById('alumni-registration-form');
+    if (registrationForm) {
+        registrationForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validation checks
+            if (mobileVerified.value !== '1') {
+                alert('Validation Error: Please verify your mobile number before submitting.');
+                return;
+            }
+            
+            const fullName = this.querySelector('[name="name"]').value.trim();
+            const yearOfCompletion = this.querySelector('[name="completion_year"]').value.trim();
+            const stateId = this.querySelector('[name="state"]').value;
+            const cityValue = this.querySelector('[name="city"]').value;
+            const cityOther = this.querySelector('[name="city_other"]').value.trim();
+            const email = this.querySelector('[name="email"]').value.trim();
+            const mobileNumber = this.querySelector('[name="contact"]').value.trim();
+            const occupation = this.querySelector('[name="occupation"]').value.trim();
+            
+            // Validate all fields
+            if (!fullName) {
+                alert('Validation Error: Please enter your full name.');
+                return;
+            }
+            
+            if (!yearOfCompletion || yearOfCompletion.length !== 4) {
+                alert('Validation Error: Please enter a valid 4-digit year of completion.');
+                return;
+            }
+            
+            if (!stateId) {
+                alert('Validation Error: Please select a state.');
+                return;
+            }
+            
+            if (!cityValue) {
+                alert('Validation Error: Please select a city.');
+                return;
+            }
+            
+            if (!email) {
+                alert('Validation Error: Please enter your email address.');
+                return;
+            }
+            
+            if (!mobileNumber || mobileNumber.length !== 10) {
+                alert('Validation Error: Please enter a valid 10-digit mobile number.');
+                return;
+            }
+            
+            if (!occupation) {
+                alert('Validation Error: Please select or enter your occupation.');
+                return;
+            }
+            
+            const cityId = cityValue === 'Other' ? cityOther : cityValue;
+            
+            const payload = {
+                full_name: fullName,
+                year_of_completion: parseInt(yearOfCompletion),
+                state_id: parseInt(stateId),
+                city_id: parseInt(cityId),
+                email: email,
+                mobile_number: mobileNumber,
+                occupation: occupation
+            };
+            
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            submitButton.textContent = 'Submitting...';
+            submitButton.disabled = true;
+            
+            fetch('https://sip-admin.designonline.in/api/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                return response.json().then(data => {
+                    if (!response.ok) {
+                        throw {status: response.status, data: data};
+                    }
+                    return data;
+                });
+            })
+            .then(data => {
+                if (data.status === true || data.success === true) {
+                    alert('Success! Registration completed successfully. You will be redirected to the thank you page.');
+                    window.location.href = 'thankyou.html';
+                } else {
+                    throw {data: data};
+                }
+            })
+            .catch(error => {
+                let errorMessage = 'Registration failed. ';
+                
+                if (error.data) {
+                    if (error.data.message) {
+                        errorMessage += error.data.message;
+                    } else if (error.data.errors) {
+                        const errors = Object.values(error.data.errors).flat();
+                        errorMessage += errors.join(', ');
+                    } else {
+                        errorMessage += 'Please check your information and try again.';
+                    }
+                } else if (error.message) {
+                    errorMessage += error.message;
+                } else {
+                    errorMessage += 'Please check your internet connection and try again.';
+                }
+                
+                alert('Error: ' + errorMessage);
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+            });
         });
     }
 });
