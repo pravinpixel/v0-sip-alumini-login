@@ -624,27 +624,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const citySelect = document.getElementById('city');
     
     if (stateSelect && citySelect) {
-        // Fallback states list with IDs (Indian states)
-        const fallbackStates = [
-            {id: 1, name: 'Andhra Pradesh'}, {id: 2, name: 'Arunachal Pradesh'}, 
-            {id: 3, name: 'Assam'}, {id: 4, name: 'Bihar'}, {id: 5, name: 'Chhattisgarh'},
-            {id: 6, name: 'Goa'}, {id: 7, name: 'Gujarat'}, {id: 8, name: 'Haryana'}, 
-            {id: 9, name: 'Himachal Pradesh'}, {id: 10, name: 'Jharkhand'},
-            {id: 11, name: 'Karnataka'}, {id: 12, name: 'Kerala'}, 
-            {id: 13, name: 'Madhya Pradesh'}, {id: 14, name: 'Maharashtra'}, 
-            {id: 15, name: 'Manipur'}, {id: 16, name: 'Meghalaya'}, 
-            {id: 17, name: 'Mizoram'}, {id: 18, name: 'Nagaland'}, 
-            {id: 19, name: 'Odisha'}, {id: 20, name: 'Punjab'},
-            {id: 21, name: 'Rajasthan'}, {id: 22, name: 'Sikkim'}, 
-            {id: 23, name: 'Tamil Nadu'}, {id: 24, name: 'Telangana'}, 
-            {id: 25, name: 'Tripura'}, {id: 26, name: 'Uttar Pradesh'}, 
-            {id: 27, name: 'Uttarakhand'}, {id: 28, name: 'West Bengal'},
-            {id: 29, name: 'Andaman and Nicobar Islands'}, {id: 30, name: 'Chandigarh'}, 
-            {id: 31, name: 'Dadra and Nagar Haveli and Daman and Diu'},
-            {id: 32, name: 'Delhi'}, {id: 33, name: 'Jammu and Kashmir'}, 
-            {id: 34, name: 'Ladakh'}, {id: 35, name: 'Lakshadweep'}, 
-            {id: 36, name: 'Puducherry'}
-        ];
         
         const populateStates = (states) => {
             states.forEach(state => {
@@ -656,91 +635,44 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         };
         
-        const fetchCities = (stateId, stateName) => {
+        const fetchCities = (stateId) => {
             citySelect.innerHTML = '<option value="" disabled selected>Loading cities...</option>';
             citySelect.disabled = true;
             
-            fetch('https://sip-admin.designonline.in/api/essentials', {
-                method: 'POST',
+            fetch(`https://sip-admin.designonline.in/api/essentials?required=city&state_id=${stateId}`, {
+                method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    required: 'city',
-                    state_id: stateId
-                })
-            })
-            .then(response => {
-                // Check if response is JSON
-                const contentType = response.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    throw new Error('API returned non-JSON response');
                 }
-                return response.json();
             })
+            .then(response => response.json())
             .then(apiData => {
                 citySelect.innerHTML = '<option value="" disabled selected>Select City</option>';
                 
-                let cities = [];
-                // Check various possible response structures
-                if (apiData && apiData.data && Array.isArray(apiData.data)) {
-                    cities = apiData.data;
-                } else if (apiData && apiData.cities && Array.isArray(apiData.cities)) {
-                    cities = apiData.cities;
-                } else if (Array.isArray(apiData)) {
-                    cities = apiData;
-                }
-                
-                if (cities.length > 0) {
+                if (apiData && apiData.data && apiData.data.city && Array.isArray(apiData.data.city)) {
+                    const cities = apiData.data.city;
+                    
                     cities.forEach(city => {
                         const option = document.createElement('option');
-                        // Store city ID as value, display name as text
-                        if (typeof city === 'object') {
-                            option.value = city.id || city.city_id || city.name || city.city_name;
-                            option.textContent = city.name || city.city_name;
-                        } else {
-                            option.value = city;
-                            option.textContent = city;
-                        }
+                        option.value = city.id;
+                        option.textContent = city.name;
                         citySelect.appendChild(option);
                     });
                     citySelect.disabled = false;
-                } 
+                } else {
+                    citySelect.innerHTML = '<option value="" disabled selected>No data found</option>';
+                    citySelect.disabled = true;
+                }
             })
             .catch(error => {
                 console.warn('City API unavailable:', error.message);
-                // Show fallback option when API fails
-                citySelect.innerHTML = '<option value="" disabled selected>Select City</option>';
-                
-                // Add common cities as fallback
-                const commonCities = [
-                    'Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 
-                    'Kolkata', 'Pune', 'Ahmedabad', 'Jaipur', 'Surat',
-                    'Lucknow', 'Kanpur', 'Nagpur', 'Indore', 'Thane',
-                    'Bhopal', 'Visakhapatnam', 'Pimpri-Chinchwad', 'Patna', 'Vadodara',
-                    'Ghaziabad', 'Ludhiana', 'Agra', 'Nashik', 'Faridabad',
-                    'Meerut', 'Rajkot', 'Kalyan-Dombivali', 'Vasai-Virar', 'Varanasi',
-                    'Srinagar', 'Aurangabad', 'Dhanbad', 'Amritsar', 'Navi Mumbai',
-                    'Allahabad', 'Ranchi', 'Howrah', 'Coimbatore', 'Jabalpur',
-                    'Gwalior', 'Vijayawada', 'Jodhpur', 'Madurai', 'Raipur',
-                    'Kota', 'Chandigarh', 'Guwahati', 'Other'
-                ];
-                
-                commonCities.forEach((city, index) => {
-                    const option = document.createElement('option');
-                    // Use index as ID for fallback cities
-                    option.value = index + 1;
-                    option.textContent = city;
-                    option.dataset.cityName = city;
-                    citySelect.appendChild(option);
-                });
-                
-                citySelect.disabled = false;
+                citySelect.innerHTML = '<option value="" disabled selected>No data found</option>';
+                citySelect.disabled = true;
             });
         };
         
         // Load states on page load
-        fetch('https://sip-admin.designonline.in/api/essentials', {
+        fetch('https://sip-admin.designonline.in/api/essentials?required=state', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -748,50 +680,21 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(apiData => {
-            let statesLoaded = false;
-            let states = [];
-            
-            // Check various possible response structures
-            if (apiData && apiData.data && Array.isArray(apiData.data) && apiData.data.length > 0) {
-                states = apiData.data;
-                statesLoaded = true;
-            } else if (apiData && apiData.states && Array.isArray(apiData.states) && apiData.states.length > 0) {
-                states = apiData.states;
-                statesLoaded = true;
-            } else if (Array.isArray(apiData) && apiData.length > 0) {
-                states = apiData;
-                statesLoaded = true;
-            }
-            
-            // Ensure states have IDs
-            if (statesLoaded && states.length > 0) {
-                states = states.map((state, index) => {
-                    if (typeof state === 'object' && !state.id) {
-                        state.id = index + 1;
-                    } else if (typeof state === 'string') {
-                        return {id: index + 1, name: state};
-                    }
-                    return state;
-                });
+            if (apiData && apiData.data && apiData.data.state && Array.isArray(apiData.data.state)) {
+                const states = apiData.data.state;
                 populateStates(states);
-            } else {
-                console.log('Using fallback states list');
-                populateStates(fallbackStates);
             }
         })
         .catch(error => {
             console.error('Error fetching states:', error);
-            populateStates(fallbackStates);
         });
         
         // Handle state selection change
         stateSelect.addEventListener('change', function() {
             const selectedStateId = this.value;
-            const selectedOption = this.options[this.selectedIndex];
-            const selectedStateName = selectedOption.dataset.stateName || selectedOption.textContent;
             
             if (selectedStateId) {
-                fetchCities(selectedStateId, selectedStateName);
+                fetchCities(selectedStateId);
             }
         });
         
