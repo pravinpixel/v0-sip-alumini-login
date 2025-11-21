@@ -1013,24 +1013,47 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             })
             .catch(error => {
-                let errorMessage = 'Registration failed. ';
+                let errorMessage = '';
                 
                 if (error.data) {
-                    if (error.data.message) {
-                        errorMessage += error.data.message;
-                    } else if (error.data.errors) {
-                        const errors = Object.values(error.data.errors).flat();
-                        errorMessage += errors.join(', ');
+                    // Check for validation errors
+                    if (error.data.errors && typeof error.data.errors === 'object') {
+                        errorMessage = 'Validation Errors:\n\n';
+                        
+                        // Format each field's errors
+                        Object.keys(error.data.errors).forEach(field => {
+                            const fieldErrors = error.data.errors[field];
+                            const fieldName = field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                            
+                            if (Array.isArray(fieldErrors)) {
+                                fieldErrors.forEach(err => {
+                                    errorMessage += '• ' + err + '\n';
+                                });
+                            } else {
+                                errorMessage += '• ' + fieldName + ': ' + fieldErrors + '\n';
+                            }
+                        });
+                    } else if (error.data.message) {
+                        errorMessage = error.data.message;
+                        
+                        // If there's a message but also errors, append them
+                        if (error.data.errors) {
+                            errorMessage += '\n\nDetails:\n';
+                            const errors = Object.values(error.data.errors).flat();
+                            errors.forEach(err => {
+                                errorMessage += '• ' + err + '\n';
+                            });
+                        }
                     } else {
-                        errorMessage += 'Please check your information and try again.';
+                        errorMessage = 'Registration failed. Please check your information and try again.';
                     }
                 } else if (error.message) {
-                    errorMessage += error.message;
+                    errorMessage = error.message;
                 } else {
-                    errorMessage += 'Please check your internet connection and try again.';
+                    errorMessage = 'Registration failed. Please check your internet connection and try again.';
                 }
                 
-                alert('Error: ' + errorMessage);
+                alert(errorMessage);
                 submitButton.textContent = originalText;
                 submitButton.disabled = false;
             });
