@@ -299,10 +299,19 @@
                 <form action="send_mail.php" method="post">
                     <input type="text" name="name" placeholder="Full Name" pattern="[A-Za-z\s]+" title="Please enter a valid name (letters and spaces only)" required>
                     <input type="text" name="completion_year" placeholder="Year of Completion" pattern="\d{4}" maxlength="4" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);" title="Please enter a valid 4-digit year" required>
-                    <input type="text" name="location" placeholder="City & State" pattern="[A-Za-z\s,]+" title="Please enter a valid location (letters, spaces and commas only)" required>
+                    <select name="state" id="state" required>
+                        <option value="" disabled selected>Select State</option>
+                    </select>
+                    <select name="city" id="city" required disabled>
+                        <option value="" disabled selected>Select City</option>
+                    </select>
+                    <input type="text" name="city_other" id="city_other" placeholder="Enter your city" style="display: none;" pattern="[A-Za-z\s]+" title="Please enter a valid city name">
                     <input type="email" name="email" placeholder="Email Address" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address" required>
                     <input type="tel" name="contact" placeholder="Contact Number" pattern="[0-9]{10,13}" oninput="this.value = this.value.replace(/[^0-9]/g, '');" minlength="10" maxlength="13" title="Please enter a valid phone number (10-13 digits)" required>
-                    <input type="text" name="occupation" placeholder="Current Occupation / Field of Study" pattern="[A-Za-z0-9\s,.]+" title="Please enter valid occupation details" required>
+                    <div class="autocomplete-wrapper">
+                        <input type="text" id="occupation" name="occupation" placeholder="Current Occupation / Field of Study" autocomplete="off" required>
+                        <div id="occupation-suggestions" class="autocomplete-suggestions"></div>
+                    </div>
                     <button type="submit" class="common_btn">Join the Alumni Network</button>
                 </form>
 
@@ -486,6 +495,250 @@
 });
 </script>
 
+
+<script>
+// Autocomplete functionality for occupation field
+document.addEventListener('DOMContentLoaded', function() {
+    const occupationInput = document.getElementById('occupation');
+    const suggestionsDiv = document.getElementById('occupation-suggestions');
+    
+    if (occupationInput && suggestionsDiv) {
+        let debounceTimer;
+        
+        occupationInput.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            const query = this.value.trim();
+            
+            if (query.length < 2) {
+                suggestionsDiv.innerHTML = '';
+                suggestionsDiv.style.display = 'none';
+                return;
+            }
+            
+            debounceTimer = setTimeout(() => {
+                fetch('get_occupations.php?q=' + encodeURIComponent(query))
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.length > 0) {
+                            suggestionsDiv.innerHTML = '';
+                            data.forEach(item => {
+                                const div = document.createElement('div');
+                                div.className = 'suggestion-item';
+                                div.textContent = item;
+                                div.addEventListener('click', function() {
+                                    occupationInput.value = item;
+                                    suggestionsDiv.innerHTML = '';
+                                    suggestionsDiv.style.display = 'none';
+                                });
+                                suggestionsDiv.appendChild(div);
+                            });
+                            suggestionsDiv.style.display = 'block';
+                        } else {
+                            suggestionsDiv.innerHTML = '';
+                            suggestionsDiv.style.display = 'none';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching suggestions:', error);
+                        suggestionsDiv.innerHTML = '';
+                        suggestionsDiv.style.display = 'none';
+                    });
+            }, 300);
+        });
+        
+        // Close suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (e.target !== occupationInput && e.target !== suggestionsDiv) {
+                suggestionsDiv.innerHTML = '';
+                suggestionsDiv.style.display = 'none';
+            }
+        });
+    }
+    
+    // Fetch and populate states dropdown
+    const stateSelect = document.getElementById('state');
+    const citySelect = document.getElementById('city');
+    
+    if (stateSelect && citySelect) {
+        // Fallback states list with IDs (Indian states)
+        const fallbackStates = [
+            {id: 1, name: 'Andhra Pradesh'}, {id: 2, name: 'Arunachal Pradesh'}, 
+            {id: 3, name: 'Assam'}, {id: 4, name: 'Bihar'}, {id: 5, name: 'Chhattisgarh'},
+            {id: 6, name: 'Goa'}, {id: 7, name: 'Gujarat'}, {id: 8, name: 'Haryana'}, 
+            {id: 9, name: 'Himachal Pradesh'}, {id: 10, name: 'Jharkhand'},
+            {id: 11, name: 'Karnataka'}, {id: 12, name: 'Kerala'}, 
+            {id: 13, name: 'Madhya Pradesh'}, {id: 14, name: 'Maharashtra'}, 
+            {id: 15, name: 'Manipur'}, {id: 16, name: 'Meghalaya'}, 
+            {id: 17, name: 'Mizoram'}, {id: 18, name: 'Nagaland'}, 
+            {id: 19, name: 'Odisha'}, {id: 20, name: 'Punjab'},
+            {id: 21, name: 'Rajasthan'}, {id: 22, name: 'Sikkim'}, 
+            {id: 23, name: 'Tamil Nadu'}, {id: 24, name: 'Telangana'}, 
+            {id: 25, name: 'Tripura'}, {id: 26, name: 'Uttar Pradesh'}, 
+            {id: 27, name: 'Uttarakhand'}, {id: 28, name: 'West Bengal'},
+            {id: 29, name: 'Andaman and Nicobar Islands'}, {id: 30, name: 'Chandigarh'}, 
+            {id: 31, name: 'Dadra and Nagar Haveli and Daman and Diu'},
+            {id: 32, name: 'Delhi'}, {id: 33, name: 'Jammu and Kashmir'}, 
+            {id: 34, name: 'Ladakh'}, {id: 35, name: 'Lakshadweep'}, 
+            {id: 36, name: 'Puducherry'}
+        ];
+        
+        const populateStates = (states) => {
+            states.forEach(state => {
+                const option = document.createElement('option');
+                option.value = state.id;
+                option.textContent = state.name || state.state_name;
+                option.dataset.stateName = state.name || state.state_name;
+                stateSelect.appendChild(option);
+            });
+        };
+        
+        const fetchCities = (stateId, stateName) => {
+            citySelect.innerHTML = '<option value="" disabled selected>Loading cities...</option>';
+            citySelect.disabled = true;
+            
+            fetch('https://sip-admin.designonline.in/api/essentials', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    required: 'city',
+                    state_id: stateId
+                })
+            })
+            .then(response => {
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('API returned non-JSON response');
+                }
+                return response.json();
+            })
+            .then(apiData => {
+                citySelect.innerHTML = '<option value="" disabled selected>Select City</option>';
+                
+                let cities = [];
+                // Check various possible response structures
+                if (apiData && apiData.data && Array.isArray(apiData.data)) {
+                    cities = apiData.data;
+                } else if (apiData && apiData.cities && Array.isArray(apiData.cities)) {
+                    cities = apiData.cities;
+                } else if (Array.isArray(apiData)) {
+                    cities = apiData;
+                }
+                
+                if (cities.length > 0) {
+                    cities.forEach(city => {
+                        const option = document.createElement('option');
+                        option.value = typeof city === 'object' ? (city.name || city.city_name) : city;
+                        option.textContent = typeof city === 'object' ? (city.name || city.city_name) : city;
+                        citySelect.appendChild(option);
+                    });
+                    citySelect.disabled = false;
+                } 
+            })
+            .catch(error => {
+                console.warn('City API unavailable:', error.message);
+                // Show fallback option when API fails
+                citySelect.innerHTML = '<option value="" disabled selected>Select City</option>';
+                
+                // Add common cities as fallback
+                const commonCities = [
+                    'Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 
+                    'Kolkata', 'Pune', 'Ahmedabad', 'Jaipur', 'Surat',
+                    'Lucknow', 'Kanpur', 'Nagpur', 'Indore', 'Thane',
+                    'Bhopal', 'Visakhapatnam', 'Pimpri-Chinchwad', 'Patna', 'Vadodara',
+                    'Ghaziabad', 'Ludhiana', 'Agra', 'Nashik', 'Faridabad',
+                    'Meerut', 'Rajkot', 'Kalyan-Dombivali', 'Vasai-Virar', 'Varanasi',
+                    'Srinagar', 'Aurangabad', 'Dhanbad', 'Amritsar', 'Navi Mumbai',
+                    'Allahabad', 'Ranchi', 'Howrah', 'Coimbatore', 'Jabalpur',
+                    'Gwalior', 'Vijayawada', 'Jodhpur', 'Madurai', 'Raipur',
+                    'Kota', 'Chandigarh', 'Guwahati', 'Other'
+                ];
+                
+                commonCities.forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city;
+                    option.textContent = city;
+                    citySelect.appendChild(option);
+                });
+                
+                citySelect.disabled = false;
+            });
+        };
+        
+        // Load states on page load
+        fetch('https://sip-admin.designonline.in/api/essentials', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(apiData => {
+            let statesLoaded = false;
+            let states = [];
+            
+            // Check various possible response structures
+            if (apiData && apiData.data && Array.isArray(apiData.data) && apiData.data.length > 0) {
+                states = apiData.data;
+                statesLoaded = true;
+            } else if (apiData && apiData.states && Array.isArray(apiData.states) && apiData.states.length > 0) {
+                states = apiData.states;
+                statesLoaded = true;
+            } else if (Array.isArray(apiData) && apiData.length > 0) {
+                states = apiData;
+                statesLoaded = true;
+            }
+            
+            // Ensure states have IDs
+            if (statesLoaded && states.length > 0) {
+                states = states.map((state, index) => {
+                    if (typeof state === 'object' && !state.id) {
+                        state.id = index + 1;
+                    } else if (typeof state === 'string') {
+                        return {id: index + 1, name: state};
+                    }
+                    return state;
+                });
+                populateStates(states);
+            } else {
+                console.log('Using fallback states list');
+                populateStates(fallbackStates);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching states:', error);
+            populateStates(fallbackStates);
+        });
+        
+        // Handle state selection change
+        stateSelect.addEventListener('change', function() {
+            const selectedStateId = this.value;
+            const selectedOption = this.options[this.selectedIndex];
+            const selectedStateName = selectedOption.dataset.stateName || selectedOption.textContent;
+            
+            if (selectedStateId) {
+                fetchCities(selectedStateId, selectedStateName);
+            }
+        });
+        
+        // Handle city "Other" option
+        citySelect.addEventListener('change', function() {
+            const cityOtherInput = document.getElementById('city_other');
+            if (this.value === 'Other') {
+                cityOtherInput.style.display = 'block';
+                cityOtherInput.required = true;
+                this.required = false;
+            } else {
+                cityOtherInput.style.display = 'none';
+                cityOtherInput.required = false;
+                this.required = true;
+            }
+        });
+    }
+});
+</script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>

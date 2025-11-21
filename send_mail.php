@@ -4,7 +4,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $subject = isset($_POST['subject']) ? $_POST['subject'] : 'Contact Form Submission';
     $name = isset($_POST['name']) ? $_POST['name'] : '';
     $completion_year = isset($_POST['completion_year']) ? $_POST['completion_year'] : '';
-    $location = isset($_POST['location']) ? $_POST['location'] : '';
+    $state = isset($_POST['state']) ? $_POST['state'] : '';
+    $city = isset($_POST['city']) ? $_POST['city'] : '';
+    $city_other = isset($_POST['city_other']) ? $_POST['city_other'] : '';
+    
+    // Use city_other if city is "Other"
+    if ($city === 'Other' && !empty($city_other)) {
+        $city = $city_other;
+    }
+    
+    $location = $city . ', ' . $state; // Combine city and state for backward compatibility
     $email = isset($_POST['email']) ? $_POST['email'] : '';
     $contact = isset($_POST['contact']) ? $_POST['contact'] : '';
     $occupation = isset($_POST['occupation']) ? $_POST['occupation'] : '';
