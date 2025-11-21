@@ -1172,12 +1172,12 @@ iframe {
     width: 100%;
     padding: 15px;
     margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    border: 1px solid #B1040E;
+    border-radius: 8px;
     font-size: 16px;
     font-family: 'Montserrat', sans-serif;
     color: #333;
-    background-color: #fff;
+    background-color: transparent;
     transition: all 0.3s ease;
     box-sizing: border-box;
 }
@@ -1199,7 +1199,7 @@ iframe {
 .join_sip form input[type="tel"]:focus,
 .join_sip form select:focus {
     outline: none;
-    border-color: #249829;
+    /* border-color: #249829; */
     box-shadow: 0 0 0 3px rgba(36, 152, 41, 0.1);
 }
 
