@@ -762,7 +762,8 @@ footer .container .copyrights ul {
     align-items: center;
     text-align: center;
     justify-content: center;
-    padding: 0 20px;
+    padding: 20px 20px;
+    margin-bottom: 10px;
 }
 
 .thank_you svg {
