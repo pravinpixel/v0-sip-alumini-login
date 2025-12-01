@@ -1322,7 +1322,7 @@ iframe {
 .occupation-wrapper {
     position: relative;
     width: 100%;
-  
+
 }
 
 .occupation-select-wrapper {
@@ -1333,19 +1333,19 @@ iframe {
 
 .occupation-trigger {
     display: flex;
-        justify-content: space-between;
+    justify-content: space-between;
     width: 100%;
-        padding: 15px;
-        margin-bottom: 15px;
-        border: 1px solid #B1040E;
-        border-radius: 8px;
-        font-size: 16px;
-        font-family: 'Montserrat', sans-serif;
-        color: #333;
-        background-color: transparent;
-        transition: all 0.3s ease;
-        box-sizing: border-box;
-        width: 100%;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid #B1040E;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: 'Montserrat', sans-serif;
+    color: #333;
+    background-color: transparent;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .occupation-placeholder {
@@ -1403,4 +1403,61 @@ nal utility classes */
 
 .occupation-dropdown-open {
     display: block !important;
+}
+
+/* To
+ast Notification */
+.toast-notification {
+    position: fixed;
+    top: 85px;
+    right: 25px;
+    padding: 14px 20px;
+    color: #fff;
+    font-size: 15px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 999999 !important;
+    animation: slideInUp 0.3s ease;
+    max-width: 400px;
+    word-wrap: break-word;
+}
+
+.toast-notification.hide {
+    animation: slideOutDown 0.3s ease forwards;
+}
+@media screen and (min-width: 120px) and (max-width: 767px) {
+    .toast-notification {
+        top: 50px;
+        right: 15px;
+    }
+}
+@keyframes slideInUp {
+    from {
+        transform: translateY(40px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutDown {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    to {
+        transform: translateY(40px);
+        opacity: 0;
+    }
+}
+
+.btn-thank{
+    margin-top: 4px;
 }

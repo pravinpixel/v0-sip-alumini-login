@@ -512,6 +512,23 @@
 
 
 <script>
+// Toast notification function
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.style.backgroundColor = type === 'success' ? '#10b981' : '#ef4444';
+    toast.textContent = message;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.classList.add('hide');
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 300);
+    }, 4000);
+}
+
 // Occupation select with search
 document.addEventListener('DOMContentLoaded', function() {
     const occupationTrigger = document.getElementById('occupation-trigger');
@@ -742,7 +759,7 @@ document.addEventListener('DOMContentLoaded', function() {
         verifyBtn.addEventListener('click', function() {
             const mobile = mobileInput.value.trim();
             if (mobile.length !== 10) {
-                alert('Please enter a valid 10-digit mobile number');
+                showToast('Please enter a valid 10-digit mobile number', 'error');
                 return;
             }
             
@@ -767,7 +784,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     } else if (data.data && data.data.otp) {
                         alertMessage += '\n\nYour OTP is: ' + data.data.otp;
                     }
-                    alert(alertMessage);
+                    showToast(alertMessage, 'success');
                     
                     verifyBtn.classList.add('d-none');
                     otpInput.classList.remove('otp-input-field');
@@ -775,13 +792,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     otpInput.required = true;
                     otpInput.focus();
                 } else {
-                    alert('Failed to send OTP: ' + (data.message || 'Please try again'));
+                    showToast('Failed to send OTP: ' + (data.message || 'Please try again'), 'error');
                     verifyBtn.textContent = 'Verify';
                     verifyBtn.disabled = false;
                 }
             })
             .catch(error => {
-                alert('Failed to send OTP. Please try again.');
+                showToast('Failed to send OTP. Please try again.', 'error');
                 verifyBtn.textContent = 'Verify';
                 verifyBtn.disabled = false;
             });
@@ -813,14 +830,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         verificationStatus.textContent = '✓ Verified';
                         verificationStatus.style.color = '#249829';
                         verificationStatus.style.display = 'block';
-                        alert('Mobile number verified successfully!');
+                        showToast('Mobile number verified successfully!', 'success');
                     } else {
-                        alert('Invalid OTP: ' + (data.message || 'Please try again'));
+                        showToast('Invalid OTP: ' + (data.message || 'Please try again'), 'error');
                         otpInput.value = '';
                     }
                 })
                 .catch(error => {
-                    alert('Failed to verify OTP. Please try again.');
+                    showToast('Failed to verify OTP. Please try again.', 'error');
                     otpInput.value = '';
                 });
             }
@@ -835,7 +852,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Validation checks
             if (mobileVerified.value !== '1') {
-                alert('Validation Error: Please verify your mobile number before submitting.');
+                showToast('Please verify your mobile number before submitting', 'error');
                 return;
             }
             
@@ -850,37 +867,37 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Validate all fields
             if (!fullName) {
-                alert('Validation Error: Please enter your full name.');
+                showToast('Please enter your full name', 'error');
                 return;
             }
             
             if (!yearOfCompletion || yearOfCompletion.length !== 4) {
-                alert('Validation Error: Please enter a valid 4-digit year of completion.');
+                showToast('Please enter a valid 4-digit year of completion', 'error');
                 return;
             }
             
             if (!stateId) {
-                alert('Validation Error: Please select a state.');
+                showToast('Please select a state', 'error');
                 return;
             }
             
             if (!cityValue) {
-                alert('Validation Error: Please select a city.');
+                showToast('Please select a city', 'error');
                 return;
             }
             
             if (!email) {
-                alert('Validation Error: Please enter your email address.');
+                showToast('Please enter your email address', 'error');
                 return;
             }
             
             if (!mobileNumber || mobileNumber.length !== 10) {
-                alert('Validation Error: Please enter a valid 10-digit mobile number.');
+                showToast('Please enter a valid 10-digit mobile number', 'error');
                 return;
             }
             
             if (!occupation) {
-                alert('Validation Error: Please select or enter your occupation.');
+                showToast('Please select or enter your occupation', 'error');
                 return;
             }
             
@@ -950,8 +967,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     citySelect.disabled = true;
                     document.getElementById('city_other').style.display = 'none';
                     
-                    alert('Success! Registration completed successfully. You will be redirected to the thank you page.');
-                    window.location.href = 'thankyou.html';
+                    showToast('Registration completed successfully!', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'thankyou.html';
+                    }, 1500);
                 } else {
                     throw {data: data};
                 }
@@ -997,7 +1016,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     errorMessage = 'Registration failed. Please check your internet connection and try again.';
                 }
                 
-                alert(errorMessage);
+                showToast(errorMessage, 'error');
                 submitButton.textContent = originalText;
                 submitButton.disabled = false;
             });
