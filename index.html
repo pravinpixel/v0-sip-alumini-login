@@ -313,6 +313,7 @@
                         <button type="button" id="verify-mobile-btn" class="verify-btn" disabled>Verify</button>
                         <span id="verification-status" class="verify-status"></span>
                     </div>
+                    <div id="otp-timer" class="otp-timer"></div>
                     <input type="text" id="otp-input" class="otp-input-field" placeholder="Enter OTP" maxlength="6" pattern="[0-9]{6}" inputmode="numeric">
                     <input type="hidden" id="mobile-verified" value="0">
                     <div class="occupation-wrapper">
@@ -738,13 +739,113 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Field Validation - Year of Completion
+    const completionYearInput = document.getElementById('completion_year');
+    const completionYearError = document.getElementById('completion_year-error');
+    
+    if (completionYearInput && completionYearError) {
+        completionYearInput.addEventListener('input', function() {
+            const value = this.value.trim();
+            if (value.length > 0 && value.length < 4) {
+                completionYearError.textContent = 'Year must be 4 digits';
+                completionYearError.classList.add('show');
+                this.style.borderColor = '#ef4444';
+            } else {
+                completionYearError.classList.remove('show');
+                this.style.borderColor = '';
+            }
+        });
+        
+        completionYearInput.addEventListener('blur', function() {
+            const value = this.value.trim();
+            if (value && value.length < 4) {
+                completionYearError.textContent = 'Year must be 4 digits';
+                completionYearError.classList.add('show');
+                this.style.borderColor = '#ef4444';
+            }
+        });
+    }
+    
     // Mobile OTP Verification
     const mobileInput = document.getElementById('mobile-number');
     const verifyBtn = document.getElementById('verify-mobile-btn');
     const otpInput = document.getElementById('otp-input');
     const verificationStatus = document.getElementById('verification-status');
     const mobileVerified = document.getElementById('mobile-verified');
+    const otpTimer = document.getElementById('otp-timer');
     let currentMobile = '';
+    let timerInterval = null;
+    
+    // Timer functions
+    function startOtpTimer() {
+        let timeLeft = 30;
+        otpTimer.classList.add('show');
+        otpTimer.textContent = `Resend OTP in ${timeLeft}s`;
+        
+        if (timerInterval) clearInterval(timerInterval);
+        
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            if (timeLeft > 0) {
+                otpTimer.textContent = `Resend OTP in ${timeLeft}s`;
+            } else {
+                clearInterval(timerInterval);
+                otpTimer.innerHTML = '<span class="resend-link" id="resend-otp-link">Resend OTP</span>';
+                
+                // Add click handler for resend
+                document.getElementById('resend-otp-link').addEventListener('click', function() {
+                    sendOtp(currentMobile);
+                });
+            }
+        }, 1000);
+    }
+    
+    function sendOtp(mobile) {
+        const formData = new FormData();
+        formData.append('mobile_number', mobile);
+        
+        // Disable resend link if exists
+        const resendLink = document.getElementById('resend-otp-link');
+        if (resendLink) {
+            resendLink.style.pointerEvents = 'none';
+            resendLink.style.opacity = '0.5';
+        }
+        
+        fetch('https://sip-admin.designonline.in/api/send-otp', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status || data.success) {
+                let alertMessage = 'OTP sent to ' + mobile;
+                if (data.otp) {
+                    alertMessage += '\n\nYour OTP is: ' + data.otp;
+                } else if (data.data && data.data.otp) {
+                    alertMessage += '\n\nYour OTP is: ' + data.data.otp;
+                }
+                showToast(alertMessage, 'success');
+                
+                verifyBtn.classList.add('d-none');
+                otpInput.classList.remove('otp-input-field');
+                otpInput.classList.add('otp-input-visible');
+                otpInput.required = true;
+                otpInput.focus();
+                
+                // Start timer
+                startOtpTimer();
+            } else {
+                showToast('Failed to send OTP: ' + (data.message || 'Please try again'), 'error');
+                verifyBtn.textContent = 'Verify';
+                verifyBtn.disabled = false;
+            }
+        })
+        .catch(error => {
+            showToast('Failed to send OTP. Please try again.', 'error');
+            verifyBtn.textContent = 'Verify';
+            verifyBtn.disabled = false;
+        });
+    }
     
     if (mobileInput && verifyBtn) {
         // Enable verify button when mobile is valid (exactly 10 digits)
@@ -768,41 +869,7 @@ document.addEventListener('DOMContentLoaded', function() {
             verifyBtn.textContent = 'Sending...';
             verifyBtn.disabled = true;
             
-            const formData = new FormData();
-            formData.append('mobile_number', mobile);
-            
-            fetch('https://sip-admin.designonline.in/api/send-otp', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status || data.success) {
-                    // Show OTP in alert if available
-                    let alertMessage = 'OTP sent to ' + mobile;
-                    if (data.otp) {
-                        alertMessage += '\n\nYour OTP is: ' + data.otp;
-                    } else if (data.data && data.data.otp) {
-                        alertMessage += '\n\nYour OTP is: ' + data.data.otp;
-                    }
-                    showToast(alertMessage, 'success');
-                    
-                    verifyBtn.classList.add('d-none');
-                    otpInput.classList.remove('otp-input-field');
-                    otpInput.classList.add('otp-input-visible');
-                    otpInput.required = true;
-                    otpInput.focus();
-                } else {
-                    showToast('Failed to send OTP: ' + (data.message || 'Please try again'), 'error');
-                    verifyBtn.textContent = 'Verify';
-                    verifyBtn.disabled = false;
-                }
-            })
-            .catch(error => {
-                showToast('Failed to send OTP. Please try again.', 'error');
-                verifyBtn.textContent = 'Verify';
-                verifyBtn.disabled = false;
-            });
+            sendOtp(mobile);
         });
     }
     
@@ -831,6 +898,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         verificationStatus.textContent = '✓ Verified';
                         verificationStatus.style.color = '#249829';
                         verificationStatus.style.display = 'block';
+                        
+                        // Clear timer
+                        if (timerInterval) clearInterval(timerInterval);
+                        otpTimer.classList.remove('show');
+                        
                         showToast('Mobile number verified successfully!', 'success');
                     } else {
                         showToast('Invalid OTP: ' + (data.message || 'Please try again'), 'error');

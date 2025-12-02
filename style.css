@@ -1429,12 +1429,14 @@ ast Notification */
 .toast-notification.hide {
     animation: slideOutDown 0.3s ease forwards;
 }
+
 @media screen and (min-width: 120px) and (max-width: 767px) {
     .toast-notification {
         top: 50px;
         right: 15px;
     }
 }
+
 @keyframes slideInUp {
     from {
         transform: translateY(40px);
@@ -1459,6 +1461,62 @@ ast Notification */
     }
 }
 
-.btn-thank{
+.btn-thank {
     margin-top: 4px;
+}
+
+/* OTP Timer */
+.otp-timer {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    font-size: 14px;
+    color: #666;
+    margin-top: -35px;
+    margin-bottom: 5px;
+}
+
+.otp-timer.show {
+    display: block;
+    text-align: end;
+}
+
+.otp-timer .resend-link {
+    color: #249829;
+    cursor: pointer;
+    text-decoration: underline;
+    display: block;
+    font-weight: 600;
+}
+
+.otp-timer .resend-link:hover {
+    color: #1d7a21;
+}
+
+
+/* OTP T
+imer */
+.otp-timer {
+    display: none;
+    font-size: 14px;
+    color: #666;
+    margin-top: -10px;
+    margin-bottom: 10px;
+    text-align: right;
+    justify-content: flex-end;
+}
+
+.otp-timer.show {
+    display: flex;
+}
+
+.otp-timer .resend-link {
+    color: #249829;
+    cursor: pointer;
+    text-decoration: underline;
+    font-weight: 600;
+}
+
+.otp-timer .resend-link:hover {
+    color: #1d7a21;
 }
