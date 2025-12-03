@@ -1472,8 +1472,8 @@ ast Notification */
     justify-content: flex-end;
     font-size: 14px;
     color: #666;
-    margin-top: -35px;
-    margin-bottom: 5px;
+    margin-top: -22px;
+    margin-bottom: -7px;
 }
 
 .otp-timer.show {
@@ -1500,8 +1500,8 @@ imer */
     display: none;
     font-size: 14px;
     color: #666;
-    margin-top: -10px;
-    margin-bottom: 10px;
+    margin-top: -22px;
+    margin-bottom: -7px;
     text-align: right;
     justify-content: flex-end;
 }
@@ -1518,5 +1518,31 @@ imer */
 }
 
 .otp-timer .resend-link:hover {
+    color: #1d7a21;
+}
+
+/* Edi
+t Mobile Button */
+.edit-mobile-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: #249829;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+    margin-top: -22px;
+    margin-bottom: -7px;
+    text-align: right;
+    width: 100%;
+}
+
+.edit-mobile-btn.show {
+    display: block;
+}
+
+.edit-mobile-btn:hover {
     color: #1d7a21;
 }

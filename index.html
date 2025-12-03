@@ -308,6 +308,7 @@
                     </select>
                     <input type="text" name="city_other" id="city_other" placeholder="Enter your city" style="display: none;" pattern="[A-Za-z\s]+" title="Please enter a valid city name">
                     <input type="email" name="email" placeholder="Email Address" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address" required>
+                    <button type="button" id="edit-mobile-btn" class="edit-mobile-btn">Edit</button>
                     <div class="mobile-verify-wrapper">
                         <input type="tel" id="mobile-number" name="contact" class="mobile-input" placeholder="Contact Number (10 digits)" pattern="[0-9]{10}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);" minlength="10" maxlength="10" title="Please enter a valid 10-digit phone number" required>
                         <button type="button" id="verify-mobile-btn" class="verify-btn" disabled>Verify</button>
@@ -769,6 +770,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Mobile OTP Verification
     const mobileInput = document.getElementById('mobile-number');
     const verifyBtn = document.getElementById('verify-mobile-btn');
+    const editMobileBtn = document.getElementById('edit-mobile-btn');
     const otpInput = document.getElementById('otp-input');
     const verificationStatus = document.getElementById('verification-status');
     const mobileVerified = document.getElementById('mobile-verified');
@@ -827,6 +829,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 showToast(alertMessage, 'success');
                 
                 verifyBtn.classList.add('d-none');
+                editMobileBtn.classList.add('show');
                 otpInput.classList.remove('otp-input-field');
                 otpInput.classList.add('otp-input-visible');
                 otpInput.required = true;
@@ -873,6 +876,38 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Edit Mobile Button
+    if (editMobileBtn) {
+        editMobileBtn.addEventListener('click', function() {
+            // Reset mobile verification state
+            mobileVerified.value = '0';
+            mobileInput.readOnly = false;
+            mobileInput.focus();
+            
+            // Hide edit button
+            editMobileBtn.classList.remove('show');
+            
+            // Show verify button
+            verifyBtn.classList.remove('d-none');
+            verifyBtn.textContent = 'Verify';
+            verifyBtn.disabled = mobileInput.value.length !== 10;
+            
+            // Hide verification status
+            verificationStatus.style.display = 'none';
+            verificationStatus.textContent = '';
+            
+            // Hide OTP input
+            otpInput.classList.remove('otp-input-visible');
+            otpInput.classList.add('otp-input-field');
+            otpInput.value = '';
+            
+            // Clear and hide timer
+            if (timerInterval) clearInterval(timerInterval);
+            otpTimer.classList.remove('show');
+            otpTimer.textContent = '';
+        });
+    }
+    
     // Verify OTP
     if (otpInput) {
         otpInput.addEventListener('input', function() {
@@ -898,6 +933,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         verificationStatus.textContent = '✓ Verified';
                         verificationStatus.style.color = '#249829';
                         verificationStatus.style.display = 'block';
+                        
+                        // Show edit button
+                        editMobileBtn.classList.add('show');
                         
                         // Clear timer
                         if (timerInterval) clearInterval(timerInterval);
