@@ -306,7 +306,10 @@
                     <select name="city" id="city" required disabled>
                         <option value="" disabled selected>Select City</option>
                     </select>
-                    <input type="text" name="city_other" id="city_other" placeholder="Enter your city" style="display: none;" pattern="[A-Za-z\s]+" title="Please enter a valid city name">
+                    <div class="city-other-wrapper" style="display: none;">
+                        <input type="text" name="city_other" id="city_other" placeholder="Enter your city" pattern="[A-Za-z\s]+" title="Please enter a valid city name" autocomplete="off">
+                        <div id="city-other-suggestions" class="city-other-suggestions"></div>
+                    </div>
                     <input type="email" name="email" placeholder="Email Address" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address" required>
                     <button type="button" id="edit-mobile-btn" class="edit-mobile-btn">Edit</button>
                     <div class="mobile-verify-wrapper">
@@ -642,6 +645,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Fetch and populate states dropdown
     const stateSelect = document.getElementById('state');
     const citySelect = document.getElementById('city');
+    const cityOtherInput = document.getElementById('city_other');
+    const cityOtherSuggestions = document.getElementById('city-other-suggestions');
+    let otherCities = [];
     
     if (stateSelect && citySelect) {
         
@@ -669,9 +675,23 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(apiData => {
                 citySelect.innerHTML = '<option value="" disabled selected>Select City</option>';
                 
-                if (apiData && apiData.data && apiData.data.city && Array.isArray(apiData.data.city)) {
-                    const cities = apiData.data.city;
+                let cities = [];
+                
+                // Check for city.normal structure
+                if (apiData && apiData.data && apiData.data.city) {
+                    if (apiData.data.city.normal && Array.isArray(apiData.data.city.normal)) {
+                        cities = apiData.data.city.normal;
+                    } else if (Array.isArray(apiData.data.city)) {
+                        cities = apiData.data.city;
+                    }
                     
+                    // Store others cities for autocomplete
+                    if (apiData.data.city.others && Array.isArray(apiData.data.city.others)) {
+                        otherCities = apiData.data.city.others;
+                    }
+                }
+                
+                if (cities.length > 0) {
                     cities.forEach(city => {
                         const option = document.createElement('option');
                         option.value = city.id;
@@ -725,16 +745,62 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
+        // City Other Autocomplete
+        if (cityOtherInput && cityOtherSuggestions) {
+            cityOtherInput.addEventListener('input', function() {
+                const query = this.value.trim().toLowerCase();
+                
+                if (query.length < 1) {
+                    cityOtherSuggestions.classList.remove('show');
+                    cityOtherSuggestions.innerHTML = '';
+                    return;
+                }
+                
+                // Filter other cities based on query
+                const filtered = otherCities.filter(city => 
+                    city.name.toLowerCase().includes(query)
+                );
+                
+                if (filtered.length > 0) {
+                    cityOtherSuggestions.innerHTML = '';
+                    filtered.forEach(city => {
+                        const item = document.createElement('div');
+                        item.className = 'city-other-suggestion-item';
+                        item.textContent = city.name;
+                        item.addEventListener('click', function() {
+                            cityOtherInput.value = city.name;
+                            cityOtherSuggestions.classList.remove('show');
+                            cityOtherSuggestions.innerHTML = '';
+                        });
+                        cityOtherSuggestions.appendChild(item);
+                    });
+                    cityOtherSuggestions.classList.add('show');
+                } else {
+                    cityOtherSuggestions.classList.remove('show');
+                    cityOtherSuggestions.innerHTML = '';
+                }
+            });
+            
+            // Close suggestions on outside click
+            document.addEventListener('click', function(e) {
+                if (!cityOtherInput.contains(e.target) && !cityOtherSuggestions.contains(e.target)) {
+                    cityOtherSuggestions.classList.remove('show');
+                }
+            });
+        }
+        
         // Handle city "Other" option
         citySelect.addEventListener('change', function() {
-            const cityOtherInput = document.getElementById('city_other');
+            const cityOtherWrapper = document.querySelector('.city-other-wrapper');
             if (this.value === 'others') {
-                cityOtherInput.style.display = 'block';
+                cityOtherWrapper.style.display = 'block';
                 cityOtherInput.required = true;
                 this.required = false;
             } else {
-                cityOtherInput.style.display = 'none';
+                cityOtherWrapper.style.display = 'none';
                 cityOtherInput.required = false;
+                cityOtherInput.value = '';
+                cityOtherSuggestions.classList.remove('show');
                 this.required = true;
             }
         });
