@@ -915,12 +915,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 showToast( (data.message || 'Please try again'), 'error');
                 verifyBtn.textContent = 'Verify';
                 verifyBtn.disabled = false;
+                
+                // Re-enable mobile input so user can edit
+                mobileInput.readOnly = false;
+                
+                // Show edit button if there was a previously verified number
+                if (verifiedMobile !== '') {
+                    editMobileBtn.classList.add('show');
+                }
             }
         })
         .catch(error => {
             showToast('Failed to send OTP. Please try again.', 'error');
             verifyBtn.textContent = 'Verify';
             verifyBtn.disabled = false;
+            
+            // Re-enable mobile input so user can edit
+            mobileInput.readOnly = false;
+            
+            // Show edit button if there was a previously verified number
+            if (verifiedMobile !== '') {
+                editMobileBtn.classList.add('show');
+            }
         });
     }
     
@@ -957,6 +973,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Disable mobile input after clicking verify
             mobileInput.readOnly = true;
+            
+            // Hide cancel button while sending OTP
+            cancelMobileBtn.style.display = 'none';
             
             sendOtp(mobile);
         });
