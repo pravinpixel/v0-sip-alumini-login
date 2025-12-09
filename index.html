@@ -943,6 +943,9 @@ document.addEventListener('DOMContentLoaded', function() {
             verifyBtn.textContent = 'Sending...';
             verifyBtn.disabled = true;
             
+            // Disable mobile input after clicking verify
+            mobileInput.readOnly = true;
+            
             sendOtp(mobile);
         });
     }
