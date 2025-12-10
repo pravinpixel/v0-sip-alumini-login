@@ -299,7 +299,7 @@
                 <p>We’d love to hear where your journey has taken you. Whether you're pursuing academics, working in your dream job, or making a difference in your community, your story inspires us.</p>
                 <form id="alumni-registration-form" method="post">
                     <input type="text" name="name" placeholder="Full Name" pattern="[A-Za-z\s]+" title="Please enter a valid name (letters and spaces only)" required>
-                    <input type="text" name="completion_year" id="completion_year" placeholder="Year of Completion" pattern="\d{4}" maxlength="4" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);" title="Please enter a valid 4-digit year" required>
+                    <input type="text" name="completion_year" id="completion_year" placeholder="Year of Completion" pattern="\d{4}" maxlength="4" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);" title="Please enter a valid 4-digit year (not greater than current year)" required>
                     <select name="state" id="state" required>
                         <option value="" disabled selected>Select State</option>
                     </select>
@@ -817,28 +817,68 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (completionYearInput) {
         let yearToastShown = false;
+        let futureYearToastShown = false;
+        const currentYear = new Date().getFullYear();
+        
+        function validateYear(value) {
+            const year = parseInt(value);
+            const isValidLength = value.length === 4;
+            const isFutureYear = year > currentYear;
+            const minYear = 1950;
+            const isTooOld = year < minYear;
+            
+            return {
+                isValidLength,
+                isFutureYear,
+                isTooOld,
+                isValid: isValidLength && !isFutureYear && !isTooOld
+            };
+        }
         
         completionYearInput.addEventListener('input', function() {
             const value = this.value.trim();
+            const validation = validateYear(value);
+            
             if (value.length > 0 && value.length < 4) {
-                // Show toast only once per session
+                // Show toast only once per session for length
                 if (!yearToastShown) {
                     showToast('Year must be 4 digits', 'error');
                     yearToastShown = true;
                 }
+                futureYearToastShown = false; // Reset future year toast flag
+            } else if (validation.isValidLength && validation.isFutureYear) {
+                // Show toast for future year
+                if (!futureYearToastShown) {
+                    showToast(`Year cannot be greater than ${currentYear}`, 'error');
+                    futureYearToastShown = true;
+                }
+                yearToastShown = false; // Reset length toast flag
+            } else if (validation.isValidLength && validation.isTooOld) {
+                // Show toast for too old year
+                if (!futureYearToastShown) {
+                    showToast('Year must be 1950 or later', 'error');
+                    futureYearToastShown = true;
+                }
+                yearToastShown = false; // Reset length toast flag
             } else {
-                // Reset toast flag when complete
-                if (value.length === 4) {
+                // Reset toast flags when valid
+                if (validation.isValid) {
                     yearToastShown = false;
+                    futureYearToastShown = false;
                 }
             }
         });
         
         completionYearInput.addEventListener('blur', function() {
             const value = this.value.trim();
+            const validation = validateYear(value);
+            
             if (value && value.length < 4) {
-                // Show toast on blur
                 showToast('Year must be 4 digits', 'error');
+            } else if (validation.isValidLength && validation.isFutureYear) {
+                showToast(`Year cannot be greater than ${currentYear}`, 'error');
+            } else if (validation.isValidLength && validation.isTooOld) {
+                showToast('Year must be 1950 or later', 'error');
             }
         });
     }
@@ -899,11 +939,11 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.status || data.success) {
                 let alertMessage = 'OTP sent to ' + mobile;
-                if (data.otp) {
-                    alertMessage += '\n\nYour OTP is: ' + data.otp;
-                } else if (data.data && data.data.otp) {
-                    alertMessage += '\n\nYour OTP is: ' + data.data.otp;
-                }
+                // if (data.otp) {
+                //     alertMessage += '\n\nYour OTP is: ' + data.otp;
+                // } else if (data.data && data.data.otp) {
+                //     alertMessage += '\n\nYour OTP is: ' + data.data.otp;
+                // }
                 showToast(alertMessage, 'success');
                 
                 verifyBtn.classList.add('d-none');
@@ -1166,6 +1206,18 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (!yearOfCompletion || yearOfCompletion.length !== 4) {
                 showToast('Please enter a valid 4-digit year of completion', 'error');
+                return;
+            }
+            
+            const currentYear = new Date().getFullYear();
+            const yearValue = parseInt(yearOfCompletion);
+            if (yearValue > currentYear) {
+                showToast(`Year of completion cannot be greater than ${currentYear}`, 'error');
+                return;
+            }
+            
+            if (yearValue < 1950) {
+                showToast('Year of completion must be 1950 or later', 'error');
                 return;
             }
             
