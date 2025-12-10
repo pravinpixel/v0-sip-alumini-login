@@ -1523,34 +1523,17 @@ imer */
     color: #1d7a21;
 }
 
-/* Edi
-t Mobile Button */
-.edit-mobile-btn {
-    display: none;
-    background: transparent;
-    border: none;
-    color: #249829;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: underline;
-    padding: 0;
+/* Mobile Action Buttons */
+.mobile-action-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
     margin-top: -22px;
     margin-bottom: -7px;
-    text-align: right;
     width: 100%;
 }
 
-.edit-mobile-btn.show {
-    display: block;
-}
-
-.edit-mobile-btn:hover {
-    color: #1d7a21;
-}
-
-/* Cancel button */
-
+.edit-mobile-btn,
 .cancel-mobile-btn {
     display: none;
     background: transparent;
@@ -1561,19 +1544,33 @@ t Mobile Button */
     cursor: pointer;
     text-decoration: underline;
     padding: 0;
-    margin-top: -22px;
-    margin-bottom: -7px;
-    text-align: right;
-    width: 100%;
 }
 
+.edit-mobile-btn.show,
 .cancel-mobile-btn.show {
-    display: block;
+    display: inline-block;
 }
 
+.edit-mobile-btn:hover,
 .cancel-mobile-btn:hover {
     color: #1d7a21;
 }
+
+.cancel-mobile-btn {
+    color: #ef4444;
+    position: relative;
+}
+
+.cancel-mobile-btn:hover {
+    color: #dc2626;
+}
+
+/* .cancel-mobile-btn::before {
+    content: "×";
+    margin-right: 4px;
+    font-size: 16px;
+    font-weight: bold;
+} */
 
 
 /* 

@@ -311,13 +311,17 @@
                         <div id="city-other-suggestions" class="city-other-suggestions"></div>
                     </div>
                     <input type="email" name="email" placeholder="Email Address" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address" required>
-                    <button type="button" id="edit-mobile-btn" class="edit-mobile-btn">Edit</button>
+
+                        <div class="mobile-action-buttons">
+                        <button type="button" id="edit-mobile-btn" class="edit-mobile-btn">Edit</button>
+                        <button type="button" id="cancel-mobile-btn" class="cancel-mobile-btn">Cancel</button>
+                    </div>
                     <div class="mobile-verify-wrapper">
                         <input type="tel" id="mobile-number" name="contact" class="mobile-input" placeholder="Contact Number (10 digits)" pattern="[0-9]{10}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);" minlength="10" maxlength="10" title="Please enter a valid 10-digit phone number" required>
                         <button type="button" id="verify-mobile-btn" class="verify-btn" disabled>Verify</button>
-                        <button type="button" id="cancel-mobile-btn" class="cancel-mobile-btn" style="display: none;">Cancel</button>
                         <span id="verification-status" class="verify-status"></span>
                     </div>
+                
                     <div id="otp-timer" class="otp-timer"></div>
                     <input type="text" id="otp-input" class="otp-input-field" placeholder="Enter OTP" maxlength="6" pattern="[0-9]{6}" inputmode="numeric">
                     <input type="hidden" id="mobile-verified" value="0">
@@ -945,17 +949,35 @@ document.addEventListener('DOMContentLoaded', function() {
         // Also show cancel button if number is changed after verification
         mobileInput.addEventListener('input', function() {
             const isValidLength = this.value.length === 10;
-            const hasVerifiedNumber = verifiedMobile !== '';
-            const isNumberChanged = verifiedMobile !== '' && this.value !== verifiedMobile;
+            const isActuallyVerified = mobileVerified.value === '1';
+            const hasVerifiedNumber = isActuallyVerified && verifiedMobile !== '';
+            const isInEditMode = !mobileInput.readOnly;
+            const isNumberChanged = hasVerifiedNumber && this.value !== verifiedMobile;
             
-            // Enable verify button if valid length
-            verifyBtn.disabled = !isValidLength;
-            
-            // Show cancel button only if there's a verified number and it's been changed
-            if (hasVerifiedNumber && isNumberChanged) {
-                cancelMobileBtn.style.display = 'inline-block';
+            // Enable verify button only if:
+            // 1. Valid length (10 digits)
+            // 2. Not readonly (in edit mode)  
+            // 3. Either no verified number exists OR the number has changed from verified number
+            if (mobileInput.readOnly) {
+                // If readonly, always disable verify button
+                verifyBtn.disabled = true;
+            } else if (!isValidLength) {
+                // If not valid length, disable verify button
+                verifyBtn.disabled = true;
+            } else if (verifiedMobile !== '' && this.value === verifiedMobile) {
+                // If current value matches the verified number, disable verify button
+                verifyBtn.disabled = true;
             } else {
-                cancelMobileBtn.style.display = 'none';
+                // Enable verify button (valid length, in edit mode, and either no verified number or number changed)
+                verifyBtn.disabled = false;
+            }
+            
+            // Show cancel button if we have a verified number and we're in edit mode
+            // (regardless of whether current input matches verified number)
+            if (verifiedMobile !== '' && isInEditMode) {
+                cancelMobileBtn.classList.add('show');
+            } else {
+                cancelMobileBtn.classList.remove('show');
             }
         });
         
@@ -975,7 +997,7 @@ document.addEventListener('DOMContentLoaded', function() {
             mobileInput.readOnly = true;
             
             // Hide cancel button while sending OTP
-            cancelMobileBtn.style.display = 'none';
+            cancelMobileBtn.classList.remove('show');
             
             sendOtp(mobile);
         });
@@ -984,7 +1006,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Edit Mobile Button
     if (editMobileBtn) {
         editMobileBtn.addEventListener('click', function() {
-            // Reset mobile verification state
+            // Reset mobile verification state but keep verifiedMobile for cancel functionality
             mobileVerified.value = '0';
             mobileInput.readOnly = false;
             mobileInput.focus();
@@ -992,10 +1014,16 @@ document.addEventListener('DOMContentLoaded', function() {
             // Hide edit button
             editMobileBtn.classList.remove('show');
             
-            // Show verify button (disabled initially after edit)
+            // Show verify button
             verifyBtn.classList.remove('d-none');
             verifyBtn.textContent = 'Verify';
-            verifyBtn.disabled = true;
+            
+            // Set verify button state based on current conditions
+            const isValidLength = mobileInput.value.length === 10;
+            const isActuallyVerified = verifiedMobile !== '' && mobileInput.value === verifiedMobile;
+            
+            // Enable verify button if valid length and either no verified number or number is different
+            verifyBtn.disabled = !isValidLength || isActuallyVerified;
             
             // Hide verification status
             verificationStatus.style.display = 'none';
@@ -1012,8 +1040,10 @@ document.addEventListener('DOMContentLoaded', function() {
             otpTimer.classList.remove('show');
             otpTimer.textContent = '';
             
-            // Don't show cancel button yet - only when user changes the number
-            cancelMobileBtn.style.display = 'none';
+            // Show cancel button if we have a verified number (entering edit mode)
+            if (verifiedMobile !== '') {
+                cancelMobileBtn.classList.add('show');
+            }
         });
     }
     
@@ -1028,7 +1058,7 @@ document.addEventListener('DOMContentLoaded', function() {
             mobileVerified.value = '1';
             
             // Hide cancel and verify buttons
-            cancelMobileBtn.style.display = 'none';
+            cancelMobileBtn.classList.remove('show');
             verifyBtn.classList.add('d-none');
             
             // Show edit button
@@ -1087,7 +1117,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         editMobileBtn.classList.add('show');
                         
                         // Hide cancel button
-                        cancelMobileBtn.style.display = 'none';
+                        cancelMobileBtn.classList.remove('show');
                         
                         // Clear timer
                         if (timerInterval) clearInterval(timerInterval);
@@ -1219,7 +1249,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     verifyBtn.textContent = 'Verify';
                     verifyBtn.disabled = true;
                     editMobileBtn.classList.remove('show');
-                    cancelMobileBtn.style.display = 'none';
+                    cancelMobileBtn.classList.remove('show');
                     otpInput.classList.remove('otp-input-visible');
                     otpInput.classList.add('otp-input-field');
                     otpInput.value = '';
