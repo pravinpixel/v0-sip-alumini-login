@@ -300,12 +300,26 @@
                 <form id="alumni-registration-form" method="post">
                     <input type="text" name="name" placeholder="Full Name" pattern="[A-Za-z\s]+" title="Please enter a valid name (letters and spaces only)" required>
                     <input type="text" name="completion_year" id="completion_year" placeholder="Year of Completion" pattern="\d{4}" maxlength="4" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);" title="Please enter a valid 4-digit year (not greater than current year)" required>
-                    <select name="state" id="state" required>
-                        <option value="" disabled selected>Select State</option>
-                    </select>
-                    <select name="city" id="city" required disabled>
-                        <option value="" disabled selected>Select City</option>
-                    </select>
+                    <div class="select-wrapper">
+                        <select name="state" id="state" required>
+                            <option value="" disabled selected>Select State</option>
+                        </select>
+                        <div class="select-arrow">
+                            <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M1 1L6 6L11 1" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="select-wrapper">
+                        <select name="city" id="city" required disabled>
+                            <option value="" disabled selected>Select City</option>
+                        </select>
+                        <div class="select-arrow">
+                            <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M1 1L6 6L11 1" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
                     <div class="city-other-wrapper" style="display: none;">
                         <input type="text" name="city_other" id="city_other" placeholder="Enter your city" pattern="[A-Za-z\s]+" title="Please enter a valid city name" autocomplete="off">
                         <div id="city-other-suggestions" class="city-other-suggestions"></div>
@@ -1372,6 +1386,67 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+});
+</script>
+
+<!-- Dropdown Arrow Animation Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get all select wrappers
+    const selectWrappers = document.querySelectorAll('.select-wrapper');
+    
+    selectWrappers.forEach(wrapper => {
+        const select = wrapper.querySelector('select');
+        
+        if (select) {
+            // Track if dropdown is currently open
+            let isOpen = false;
+            
+            // Function to toggle arrow
+            function toggleArrow(open) {
+                if (open) {
+                    wrapper.classList.add('open');
+                } else {
+                    wrapper.classList.remove('open');
+                }
+                isOpen = open;
+            }
+            
+            // Mouse down event - dropdown is about to open
+            select.addEventListener('mousedown', function(e) {
+                // Only toggle if not disabled
+                if (!select.disabled) {
+                    toggleArrow(!isOpen);
+                }
+            });
+            
+            // Focus event - dropdown opens
+            select.addEventListener('focus', function() {
+                if (!select.disabled) {
+                    toggleArrow(true);
+                }
+            });
+            
+            // Blur event - dropdown closes
+            select.addEventListener('blur', function() {
+                toggleArrow(false);
+            });
+            
+            // Change event - selection made, close dropdown
+            select.addEventListener('change', function() {
+                setTimeout(() => {
+                    toggleArrow(false);
+                }, 100);
+            });
+            
+            // Click outside to close (for better UX)
+            document.addEventListener('click', function(e) {
+                if (!wrapper.contains(e.target)) {
+                    toggleArrow(false);
+                }
+            });
+        }
+    });
 });
 </script>
 
