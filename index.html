@@ -298,10 +298,10 @@
                 <h2 class="common_heading">Join the SIP<br class="desktop_break"><span class="red white_line">Alumni Circle</span></h2>
                 <p>We’d love to hear where your journey has taken you. Whether you're pursuing academics, working in your dream job, or making a difference in your community, your story inspires us.</p>
                 <form id="alumni-registration-form" method="post">
-                    <input type="text" name="name" placeholder="Full Name" pattern="[A-Za-z\s]+" title="Please enter a valid name (letters and spaces only)" required>
-                    <input type="text" name="completion_year" id="completion_year" placeholder="Year of Completion" pattern="\d{4}" maxlength="4" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);" title="Please enter a valid 4-digit year (not greater than current year)" required>
+                    <input type="text" name="name" placeholder="Full Name">
+                    <input type="text" name="completion_year" id="completion_year" placeholder="Year of Completion" maxlength="4" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);">
                     <div class="select-wrapper">
-                        <select name="state" id="state" required>
+                        <select name="state" id="state">
                             <option value="" disabled selected>Select State</option>
                         </select>
                         <div class="select-arrow">
@@ -311,7 +311,7 @@
                         </div>
                     </div>
                     <div class="select-wrapper">
-                        <select name="city" id="city" required disabled>
+                        <select name="city" id="city" disabled>
                             <option value="" disabled selected>Select City</option>
                         </select>
                         <div class="select-arrow">
@@ -321,36 +321,40 @@
                         </div>
                     </div>
                     <div class="city-other-wrapper" style="display: none;">
-                        <input type="text" name="city_other" id="city_other" placeholder="Enter your city" pattern="[A-Za-z\s]+" title="Please enter a valid city name" autocomplete="off">
+                        <input type="text" name="city_other" id="city_other" placeholder="Enter your city" autocomplete="off">
                         <div id="city-other-suggestions" class="city-other-suggestions"></div>
                     </div>
-                    <input type="email" name="email" placeholder="Email Address" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address" required>
+                    <input type="email" name="email" placeholder="Email Address">
 
                         <div class="mobile-action-buttons">
                         <button type="button" id="edit-mobile-btn" class="edit-mobile-btn">Edit</button>
                         <button type="button" id="cancel-mobile-btn" class="cancel-mobile-btn">Cancel</button>
                     </div>
                     <div class="mobile-verify-wrapper">
-                        <input type="tel" id="mobile-number" name="contact" class="mobile-input" placeholder="Contact Number (10 digits)" pattern="[0-9]{10}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);" minlength="10" maxlength="10" title="Please enter a valid 10-digit phone number" required>
+                        <input type="tel" id="mobile-number" name="contact" class="mobile-input" placeholder="Contact Number (10 digits)" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);" maxlength="10">
                         <button type="button" id="verify-mobile-btn" class="verify-btn" disabled>Verify</button>
                         <span id="verification-status" class="verify-status"></span>
                     </div>
                 
                     <div id="otp-timer" class="otp-timer"></div>
-                    <input type="text" id="otp-input" class="otp-input-field" placeholder="Enter OTP" maxlength="6" pattern="[0-9]{6}" inputmode="numeric">
+                    <input type="text" id="otp-input" class="otp-input-field" placeholder="Enter OTP" maxlength="6" inputmode="numeric">
                     <input type="hidden" id="mobile-verified" value="0">
                     <div class="occupation-wrapper">
                         <div id="occupation-select-wrapper" class="occupation-select-wrapper">
                             <div id="occupation-trigger" class="occupation-trigger">
                                 <span id="occupation-placeholder" class="occupation-placeholder">Select Occupation / Field of Study</span>
-                                <span class="occupation-arrow">▼</span>
+                                <div class="occupation-arrow">
+                                    <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1 1L6 6L11 1" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
                             </div>
                             <div id="occupation-dropdown" class="occupation-dropdown">
                                 <input type="text" id="occupation-search" class="occupation-search" placeholder="Search or type to add..." autocomplete="off">
                                 <div id="occupation-options" class="occupation-options"></div>
                             </div>
                         </div>
-                        <input type="hidden" id="occupation" name="occupation" required>
+                        <input type="hidden" id="occupation" name="occupation">
                     </div>
                     <button type="submit" class="common_btn">Join the Alumni Network</button>
                 </form>
@@ -562,6 +566,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const occupationOptions = document.getElementById('occupation-options');
     const occupationPlaceholder = document.getElementById('occupation-placeholder');
     const occupationHidden = document.getElementById('occupation');
+    const occupationWrapper = document.getElementById('occupation-select-wrapper');
     let allOccupations = [];
     
     if (occupationTrigger && occupationDropdown) {
@@ -628,6 +633,7 @@ document.addEventListener('DOMContentLoaded', function() {
             occupationPlaceholder.classList.add('occupation-selected');
             occupationHidden.value = value;
             occupationDropdown.classList.remove('occupation-dropdown-open');
+            occupationWrapper.classList.remove('occupation-dropdown-open');
             occupationSearch.value = '';
         }
         
@@ -635,6 +641,7 @@ document.addEventListener('DOMContentLoaded', function() {
         occupationTrigger.addEventListener('click', function(e) {
             e.stopPropagation();
             occupationDropdown.classList.toggle('occupation-dropdown-open');
+            occupationWrapper.classList.toggle('occupation-dropdown-open');
             if (occupationDropdown.classList.contains('occupation-dropdown-open')) {
                 occupationSearch.focus();
             }
@@ -657,6 +664,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.addEventListener('click', function(e) {
             if (!occupationTrigger.contains(e.target) && !occupationDropdown.contains(e.target)) {
                 occupationDropdown.classList.remove('occupation-dropdown-open');
+                occupationWrapper.classList.remove('occupation-dropdown-open');
             }
         });
     }
@@ -813,14 +821,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const cityOtherWrapper = document.querySelector('.city-other-wrapper');
             if (this.value === 'others') {
                 cityOtherWrapper.style.display = 'block';
-                cityOtherInput.required = true;
-                this.required = false;
             } else {
                 cityOtherWrapper.style.display = 'none';
-                cityOtherInput.required = false;
                 cityOtherInput.value = '';
                 cityOtherSuggestions.classList.remove('show');
-                this.required = true;
             }
         });
     }
@@ -897,6 +901,63 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Name Validation
+    const nameInput = document.querySelector('input[name="name"]');
+    if (nameInput) {
+        let nameToastShown = false;
+        
+        function validateName(name) {
+            // Allow letters, spaces, apostrophes, hyphens, and dots (for names like O'Connor, Mary-Jane, Jr.)
+            const nameRegex = /^[A-Za-z\s'.-]+$/;
+            return nameRegex.test(name) && name.trim().length >= 2;
+        }
+        
+        nameInput.addEventListener('blur', function() {
+            const name = this.value.trim();
+            if (name && !validateName(name)) {
+                if (!nameToastShown) {
+                    showToast('Please enter a valid name (letters and spaces only, minimum 2 characters)', 'error');
+                    nameToastShown = true;
+                }
+            } else {
+                nameToastShown = false;
+            }
+        });
+        
+        nameInput.addEventListener('input', function() {
+            // Reset toast flag when user starts typing
+            nameToastShown = false;
+        });
+    }
+    
+    // Email Validation
+    const emailInput = document.querySelector('input[name="email"]');
+    if (emailInput) {
+        let emailToastShown = false;
+        
+        function validateEmail(email) {
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]\.[a-zA-Z]{2,}$/;
+            return emailRegex.test(email);
+        }
+        
+        emailInput.addEventListener('blur', function() {
+            const email = this.value.trim();
+            if (email && !validateEmail(email)) {
+                if (!emailToastShown) {
+                    showToast('Please enter a valid email address (e.g., user@example.com)', 'error');
+                    emailToastShown = true;
+                }
+            } else {
+                emailToastShown = false;
+            }
+        });
+        
+        emailInput.addEventListener('input', function() {
+            // Reset toast flag when user starts typing
+            emailToastShown = false;
+        });
+    }
+    
     // Mobile OTP Verification
     const mobileInput = document.getElementById('mobile-number');
     const verifyBtn = document.getElementById('verify-mobile-btn');
@@ -952,7 +1013,8 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.status || data.success) {
-                let alertMessage = 'OTP sent to ' + mobile;
+                // let alertMessage = 'OTP sent to ' + mobile;
+                let alertMessage = 'OTP has been sent to your registered mobile number';
                 // if (data.otp) {
                 //     alertMessage += '\n\nYour OTP is: ' + data.otp;
                 // } else if (data.data && data.data.otp) {
@@ -964,7 +1026,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 editMobileBtn.classList.add('show');
                 otpInput.classList.remove('otp-input-field');
                 otpInput.classList.add('otp-input-visible');
-                otpInput.required = true;
                 otpInput.focus();
                 
                 // Start timer
@@ -1087,7 +1148,6 @@ document.addEventListener('DOMContentLoaded', function() {
             otpInput.classList.remove('otp-input-visible');
             otpInput.classList.add('otp-input-field');
             otpInput.value = '';
-            otpInput.required = false;
             
             // Clear and hide timer
             if (timerInterval) clearInterval(timerInterval);
@@ -1127,7 +1187,6 @@ document.addEventListener('DOMContentLoaded', function() {
             otpInput.classList.remove('otp-input-visible');
             otpInput.classList.add('otp-input-field');
             otpInput.value = '';
-            otpInput.required = false;
             
             // Clear and hide timer
             if (timerInterval) clearInterval(timerInterval);
@@ -1162,7 +1221,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         
                         otpInput.classList.remove('otp-input-visible');
                         otpInput.classList.add('otp-input-field');
-                        otpInput.required = false;
                         verificationStatus.textContent = '✓ Verified';
                         verificationStatus.style.color = '#249829';
                         verificationStatus.style.display = 'block';
@@ -1177,7 +1235,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (timerInterval) clearInterval(timerInterval);
                         otpTimer.classList.remove('show');
                         
-                        showToast('Mobile number verified successfully!', 'success');
+                        showToast('OTP verified successfully!', 'success');
                     } else {
                         showToast( (data.message || 'Please try again'), 'error');
                         otpInput.value = '';
@@ -1197,12 +1255,7 @@ document.addEventListener('DOMContentLoaded', function() {
         registrationForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Validation checks
-            if (mobileVerified.value !== '1') {
-                showToast('Please verify your mobile number before submitting', 'error');
-                return;
-            }
-            
+            // Get all form values
             const fullName = this.querySelector('[name="name"]').value.trim();
             const yearOfCompletion = this.querySelector('[name="completion_year"]').value.trim();
             const stateId = this.querySelector('[name="state"]').value;
@@ -1212,12 +1265,21 @@ document.addEventListener('DOMContentLoaded', function() {
             const mobileNumber = this.querySelector('[name="contact"]').value.trim();
             const occupation = this.querySelector('[name="occupation"]').value.trim();
             
-            // Validate all fields
+            // Validate fields in form order
+            // 1. Full Name
             if (!fullName) {
                 showToast('Please enter your full name', 'error');
                 return;
             }
             
+            // Enhanced name validation
+            const nameRegex = /^[A-Za-z\s'.-]+$/;
+            if (!nameRegex.test(fullName) || fullName.length < 2) {
+                showToast('Please enter a valid name (letters and spaces only, minimum 2 characters)', 'error');
+                return;
+            }
+            
+            // 2. Year of Completion
             if (!yearOfCompletion || yearOfCompletion.length !== 4) {
                 showToast('Please enter a valid 4-digit year of completion', 'error');
                 return;
@@ -1235,26 +1297,44 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
+            // 3. State
             if (!stateId) {
                 showToast('Please select a state', 'error');
                 return;
             }
             
+            // 4. City
             if (!cityValue) {
                 showToast('Please select a city', 'error');
                 return;
             }
             
+            // 5. Email
             if (!email) {
                 showToast('Please enter your email address', 'error');
                 return;
             }
             
+            // Enhanced email validation
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(email)) {
+                showToast('Please enter a valid email address (e.g., user@example.com)', 'error');
+                return;
+            }
+            
+            // 6. Mobile Number
             if (!mobileNumber || mobileNumber.length !== 10) {
                 showToast('Please enter a valid 10-digit mobile number', 'error');
                 return;
             }
             
+            // Mobile verification check
+            if (mobileVerified.value !== '1') {
+                showToast('Please verify your mobile number before submitting', 'error');
+                return;
+            }
+            
+            // 7. Occupation
             if (!occupation) {
                 showToast('Please select or enter your occupation', 'error');
                 return;
@@ -1272,9 +1352,17 @@ document.addEventListener('DOMContentLoaded', function() {
             // Handle city or other_city
             if (cityValue === 'others') {
                 if (!cityOther) {
-                    alert('Validation Error: Please enter your city name.');
+                    showToast('Please enter your city name', 'error');
                     return;
                 }
+                
+                // Validate city name format
+                const cityRegex = /^[A-Za-z\s'.-]+$/;
+                if (!cityRegex.test(cityOther) || cityOther.length < 2) {
+                    showToast('Please enter a valid city name (letters and spaces only)', 'error');
+                    return;
+                }
+                
                 payload.city_id = 'others';
                 payload.other_city = cityOther;
             } else {
@@ -1319,7 +1407,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     otpInput.classList.remove('otp-input-visible');
                     otpInput.classList.add('otp-input-field');
                     otpInput.value = '';
-                    otpInput.required = false;
                     
                     // Reset occupation placeholder
                     occupationPlaceholder.textContent = 'Select Occupation / Field of Study';
@@ -1345,7 +1432,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (error.data) {
                     // Check for validation errors
                     if (error.data.errors && typeof error.data.errors === 'object') {
-                        errorMessage = 'Validation Errors:\n\n';
+                        errorMessage = '\n\n';
                         
                         // Format each field's errors
                         Object.keys(error.data.errors).forEach(field => {
@@ -1354,10 +1441,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             
                             if (Array.isArray(fieldErrors)) {
                                 fieldErrors.forEach(err => {
-                                    errorMessage += '• ' + err + '\n';
+                                    errorMessage += err + '\n';
                                 });
                             } else {
-                                errorMessage += '• ' + fieldName + ': ' + fieldErrors + '\n';
+                                errorMessage +=  fieldName + ': ' + fieldErrors + '\n';
                             }
                         });
                     } else if (error.data.message) {
@@ -1368,7 +1455,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             errorMessage += '\n\nDetails:\n';
                             const errors = Object.values(error.data.errors).flat();
                             errors.forEach(err => {
-                                errorMessage += '• ' + err + '\n';
+                                errorMessage +=  err + '\n';
                             });
                         }
                     } else {

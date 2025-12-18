@@ -1359,13 +1359,14 @@ iframe {
 .occupation-wrapper {
     position: relative;
     width: 100%;
-
+    margin-bottom: 24px;
 }
 
 .occupation-select-wrapper {
     position: relative;
     cursor: pointer;
     width: 100%;
+    z-index: 99999 !important;
 }
 
 .occupation-trigger {
@@ -1390,23 +1391,44 @@ iframe {
 }
 
 .occupation-arrow {
-    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+    pointer-events: none;
+}
+
+/* Rotate occupation arrow when dropdown is open */
+.occupation-dropdown-open .occupation-arrow {
+    transform: rotate(180deg) !important;
+}
+
+/* Occupation arrow SVG styling */
+.occupation-arrow svg {
+    width: 12px;
+    height: 8px;
+}
+
+.occupation-arrow svg path {
+    stroke: #333;
+    stroke-width: 2;
 }
 
 .occupation-dropdown {
     display: none;
-    position: absolute;
+    position: relative;
     top: 100%;
     left: 0;
     right: 0;
     background: white;
-    border: 1px solid #ddd;
+    border: 1px solid #B1040E;
     border-radius: 5px;
-    margin-top: 5px;
+    margin-top: 2px;
     z-index: 1000;
-    max-height: 300px;
+    /* max-height: 250px; */
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border-top: none;
 }
 
 .occupation-search {
