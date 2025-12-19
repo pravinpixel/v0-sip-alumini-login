@@ -721,8 +721,17 @@ document.addEventListener('DOMContentLoaded', function() {
             stateWrapper.classList.remove('state-dropdown-open');
             
             // Trigger city loading for custom dropdown
-            if (typeof showCityLoading === 'function') {
-                showCityLoading();
+            // Show loading state directly
+            const cityPlaceholder = document.getElementById('city-placeholder');
+            const cityTrigger = document.getElementById('city-trigger');
+            const cityHidden = document.getElementById('city');
+            
+            if (cityPlaceholder && cityTrigger) {
+                cityPlaceholder.textContent = 'Loading cities...';
+                cityTrigger.classList.add('disabled');
+                cityPlaceholder.classList.remove('city-selected');
+                cityPlaceholder.classList.add('city-placeholder');
+                cityHidden.value = '';
             }
             
             fetch(`https://sip-admin.designonline.in/api/essentials?required=city&state_id=${stateId}`, {
@@ -746,12 +755,81 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (cities.length > 0) {
                     allCities = cities;
-                    if (typeof renderCityOptions === 'function') {
-                        renderCityOptions(cities);
+                    
+                    // Populate city options
+                    const cityOptions = document.getElementById('city-options');
+                    if (cityOptions) {
+                        cityOptions.innerHTML = '';
+                        
+                        cities.forEach(city => {
+                            const option = document.createElement('div');
+                            option.style.cssText = 'padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #f5f5f5;';
+                            option.textContent = city.name;
+                            option.dataset.cityId = city.id;
+                            option.addEventListener('mouseenter', function() {
+                                this.style.backgroundColor = '#f8f8f8';
+                            });
+                            option.addEventListener('mouseleave', function() {
+                                this.style.backgroundColor = 'white';
+                            });
+                            option.addEventListener('click', function() {
+                                // Select city function inline
+                                const cityPlaceholder = document.getElementById('city-placeholder');
+                                const cityHidden = document.getElementById('city');
+                                const cityDropdown = document.getElementById('city-dropdown');
+                                const cityWrapper = document.getElementById('city-select-wrapper');
+                                
+                                cityPlaceholder.textContent = city.name;
+                                cityPlaceholder.classList.remove('city-placeholder');
+                                cityPlaceholder.classList.add('city-selected');
+                                cityHidden.value = city.id;
+                                cityDropdown.classList.remove('city-dropdown-open');
+                                cityWrapper.classList.remove('city-dropdown-open');
+                                
+                                // Handle normal city selection
+                                const cityOtherWrapper = document.querySelector('.city-other-wrapper');
+                                cityOtherWrapper.style.display = 'none';
+                                document.getElementById('city_other').value = '';
+                            });
+                            cityOptions.appendChild(option);
+                        });
+                        
+                        // Add "Others" option
+                        const otherOption = document.createElement('div');
+                        otherOption.style.cssText = 'padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #f5f5f5; font-style: italic; color: #666;';
+                        otherOption.textContent = 'Others';
+                        otherOption.addEventListener('mouseenter', function() {
+                            this.style.backgroundColor = '#f8f8f8';
+                        });
+                        otherOption.addEventListener('mouseleave', function() {
+                            this.style.backgroundColor = 'white';
+                        });
+                        otherOption.addEventListener('click', function() {
+                            // Select "Others" function inline
+                            const cityPlaceholder = document.getElementById('city-placeholder');
+                            const cityHidden = document.getElementById('city');
+                            const cityDropdown = document.getElementById('city-dropdown');
+                            const cityWrapper = document.getElementById('city-select-wrapper');
+                            
+                            cityPlaceholder.textContent = 'Others';
+                            cityPlaceholder.classList.remove('city-placeholder');
+                            cityPlaceholder.classList.add('city-selected');
+                            cityHidden.value = 'others';
+                            cityDropdown.classList.remove('city-dropdown-open');
+                            cityWrapper.classList.remove('city-dropdown-open');
+                            
+                            // Show city input field
+                            const cityOtherWrapper = document.querySelector('.city-other-wrapper');
+                            cityOtherWrapper.style.display = 'block';
+                        });
+                        cityOptions.appendChild(otherOption);
                     }
-                    if (typeof enableCityDropdown === 'function') {
-                        enableCityDropdown();
+                    
+                    // Enable city dropdown
+                    if (cityTrigger) {
+                        cityTrigger.classList.remove('disabled');
                     }
+                    
                     // Reset city selection
                     if (cityPlaceholder) {
                         cityPlaceholder.textContent = 'Select City';
@@ -763,8 +841,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (cityPlaceholder) {
                         cityPlaceholder.textContent = 'No data found';
                     }
-                    if (typeof disableCityDropdown === 'function') {
-                        disableCityDropdown();
+                    if (cityTrigger) {
+                        cityTrigger.classList.add('disabled');
                     }
                 }
             })
@@ -773,8 +851,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (cityPlaceholder) {
                     cityPlaceholder.textContent = 'No data found';
                 }
-                if (typeof disableCityDropdown === 'function') {
-                    disableCityDropdown();
+                if (cityTrigger) {
+                    cityTrigger.classList.add('disabled');
                 }
             });
         }
