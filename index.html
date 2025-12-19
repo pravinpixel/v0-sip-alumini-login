@@ -316,15 +316,21 @@
                         </div>
                         <input type="hidden" id="state" name="state">
                     </div>
-                    <div class="select-wrapper">
-                        <select name="city" id="city" disabled>
-                            <option value="" disabled selected>Select City</option>
-                        </select>
-                        <div class="select-arrow">
-                            <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M1 1L6 6L11 1" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
+                    <div class="city-wrapper">
+                        <div id="city-select-wrapper" class="city-select-wrapper">
+                            <div id="city-trigger" class="city-trigger disabled">
+                                <span id="city-placeholder" class="city-placeholder">Select City</span>
+                                <div class="city-arrow">
+                                    <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1 1L6 6L11 1" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div id="city-dropdown" class="city-dropdown">
+                                <div id="city-options" class="city-options"></div>
+                            </div>
                         </div>
+                        <input type="hidden" id="city" name="city">
                     </div>
                     <div class="city-other-wrapper" style="display: none;">
                         <input type="text" name="city_other" id="city_other" placeholder="Enter your city" autocomplete="off">
@@ -714,60 +720,63 @@ document.addEventListener('DOMContentLoaded', function() {
             stateDropdown.classList.remove('state-dropdown-open');
             stateWrapper.classList.remove('state-dropdown-open');
             
-            // Trigger city loading - call fetchCities directly
-            const citySelect = document.getElementById('city');
-            if (citySelect) {
-                // Show loading state
-                citySelect.innerHTML = '<option value="" disabled selected>Loading cities...</option>';
-                citySelect.disabled = true;
-                
-                fetch(`https://sip-admin.designonline.in/api/essentials?required=city&state_id=${stateId}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(apiData => {
-                    citySelect.innerHTML = '<option value="" disabled selected>Select City</option>';
-                    
-                    let cities = [];
-                    
-                    // Check for city.normal structure
-                    if (apiData && apiData.data && apiData.data.city) {
-                        if (apiData.data.city.normal && Array.isArray(apiData.data.city.normal)) {
-                            cities = apiData.data.city.normal;
-                        } else if (Array.isArray(apiData.data.city)) {
-                            cities = apiData.data.city;
-                        }
-                    }
-                    
-                    if (cities.length > 0) {
-                        cities.forEach(city => {
-                            const option = document.createElement('option');
-                            option.value = city.id;
-                            option.textContent = city.name;
-                            citySelect.appendChild(option);
-                        });
-                        
-                        // Add "Other" option at the end
-                        const otherOption = document.createElement('option');
-                        otherOption.value = 'others';
-                        otherOption.textContent = 'Others';
-                        citySelect.appendChild(otherOption);
-                        
-                        citySelect.disabled = false;
-                    } else {
-                        citySelect.innerHTML = '<option value="" disabled selected>No data found</option>';
-                        citySelect.disabled = true;
-                    }
-                })
-                .catch(error => {
-                    console.warn('City API unavailable:', error.message);
-                    citySelect.innerHTML = '<option value="" disabled selected>No data found</option>';
-                    citySelect.disabled = true;
-                });
+            // Trigger city loading for custom dropdown
+            if (typeof showCityLoading === 'function') {
+                showCityLoading();
             }
+            
+            fetch(`https://sip-admin.designonline.in/api/essentials?required=city&state_id=${stateId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(apiData => {
+                let cities = [];
+                
+                // Check for city.normal structure
+                if (apiData && apiData.data && apiData.data.city) {
+                    if (apiData.data.city.normal && Array.isArray(apiData.data.city.normal)) {
+                        cities = apiData.data.city.normal;
+                    } else if (Array.isArray(apiData.data.city)) {
+                        cities = apiData.data.city;
+                    }
+                }
+                
+                if (cities.length > 0) {
+                    allCities = cities;
+                    if (typeof renderCityOptions === 'function') {
+                        renderCityOptions(cities);
+                    }
+                    if (typeof enableCityDropdown === 'function') {
+                        enableCityDropdown();
+                    }
+                    // Reset city selection
+                    if (cityPlaceholder) {
+                        cityPlaceholder.textContent = 'Select City';
+                        cityPlaceholder.classList.remove('city-selected');
+                        cityPlaceholder.classList.add('city-placeholder');
+                        cityHidden.value = '';
+                    }
+                } else {
+                    if (cityPlaceholder) {
+                        cityPlaceholder.textContent = 'No data found';
+                    }
+                    if (typeof disableCityDropdown === 'function') {
+                        disableCityDropdown();
+                    }
+                }
+            })
+            .catch(error => {
+                console.warn('City API unavailable:', error.message);
+                if (cityPlaceholder) {
+                    cityPlaceholder.textContent = 'No data found';
+                }
+                if (typeof disableCityDropdown === 'function') {
+                    disableCityDropdown();
+                }
+            });
         }
         
         // Toggle dropdown
@@ -784,6 +793,111 @@ document.addEventListener('DOMContentLoaded', function() {
                 stateWrapper.classList.remove('state-dropdown-open');
             }
         });
+    }
+
+    // Custom City Dropdown
+    const cityTrigger = document.getElementById('city-trigger');
+    const cityDropdown = document.getElementById('city-dropdown');
+    const cityOptions = document.getElementById('city-options');
+    const cityPlaceholder = document.getElementById('city-placeholder');
+    const cityHidden = document.getElementById('city');
+    const cityWrapper = document.getElementById('city-select-wrapper');
+    let allCities = [];
+    
+    if (cityTrigger && cityDropdown) {
+        function renderCityOptions(cities) {
+            cityOptions.innerHTML = '';
+            
+            cities.forEach(city => {
+                const option = document.createElement('div');
+                option.style.cssText = 'padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #f5f5f5;';
+                option.textContent = city.name;
+                option.dataset.cityId = city.id;
+                option.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = '#f8f8f8';
+                });
+                option.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = 'white';
+                });
+                option.addEventListener('click', function() {
+                    selectCity(city.id, city.name);
+                });
+                cityOptions.appendChild(option);
+            });
+            
+            // Add "Others" option at the end
+            const otherOption = document.createElement('div');
+            otherOption.style.cssText = 'padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #f5f5f5; font-style: italic; color: #666;';
+            otherOption.textContent = 'Others';
+            otherOption.dataset.cityId = 'others';
+            otherOption.addEventListener('mouseenter', function() {
+                this.style.backgroundColor = '#f8f8f8';
+            });
+            otherOption.addEventListener('mouseleave', function() {
+                this.style.backgroundColor = 'white';
+            });
+            otherOption.addEventListener('click', function() {
+                selectCity('others', 'Others');
+            });
+            cityOptions.appendChild(otherOption);
+        }
+        
+        function selectCity(cityId, cityName) {
+            cityPlaceholder.textContent = cityName;
+            cityPlaceholder.classList.remove('city-placeholder');
+            cityPlaceholder.classList.add('city-selected');
+            cityHidden.value = cityId;
+            cityDropdown.classList.remove('city-dropdown-open');
+            cityWrapper.classList.remove('city-dropdown-open');
+            
+            // Handle "Others" option
+            const cityOtherWrapper = document.querySelector('.city-other-wrapper');
+            if (cityId === 'others') {
+                cityOtherWrapper.style.display = 'block';
+            } else {
+                cityOtherWrapper.style.display = 'none';
+                document.getElementById('city_other').value = '';
+            }
+        }
+        
+        function enableCityDropdown() {
+            cityTrigger.classList.remove('disabled');
+        }
+        
+        function disableCityDropdown() {
+            cityTrigger.classList.add('disabled');
+            cityPlaceholder.textContent = 'Select City';
+            cityPlaceholder.classList.remove('city-selected');
+            cityPlaceholder.classList.add('city-placeholder');
+            cityHidden.value = '';
+            cityDropdown.classList.remove('city-dropdown-open');
+            cityWrapper.classList.remove('city-dropdown-open');
+        }
+        
+        function showCityLoading() {
+            cityPlaceholder.textContent = 'Loading cities...';
+            disableCityDropdown();
+        }
+        
+        // Toggle dropdown
+        cityTrigger.addEventListener('click', function(e) {
+            if (!this.classList.contains('disabled')) {
+                e.stopPropagation();
+                cityDropdown.classList.toggle('city-dropdown-open');
+                cityWrapper.classList.toggle('city-dropdown-open');
+            }
+        });
+        
+        // Close on outside click
+        document.addEventListener('click', function(e) {
+            if (!cityTrigger.contains(e.target) && !cityDropdown.contains(e.target)) {
+                cityDropdown.classList.remove('city-dropdown-open');
+                cityWrapper.classList.remove('city-dropdown-open');
+            }
+        });
+        
+        // Initially disable city dropdown
+        disableCityDropdown();
     }
 
     // Fetch and populate states dropdown
