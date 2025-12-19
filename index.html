@@ -300,15 +300,21 @@
                 <form id="alumni-registration-form" method="post">
                     <input type="text" name="name" placeholder="Full Name">
                     <input type="text" name="completion_year" id="completion_year" placeholder="Year of Completion" maxlength="4" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);">
-                    <div class="select-wrapper">
-                        <select name="state" id="state">
-                            <option value="" disabled selected>Select State</option>
-                        </select>
-                        <div class="select-arrow">
-                            <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M1 1L6 6L11 1" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
+                    <div class="state-wrapper">
+                        <div id="state-select-wrapper" class="state-select-wrapper">
+                            <div id="state-trigger" class="state-trigger">
+                                <span id="state-placeholder" class="state-placeholder">Select State</span>
+                                <div class="state-arrow">
+                                    <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1 1L6 6L11 1" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div id="state-dropdown" class="state-dropdown">
+                                <div id="state-options" class="state-options"></div>
+                            </div>
                         </div>
+                        <input type="hidden" id="state" name="state">
                     </div>
                     <div class="select-wrapper">
                         <select name="city" id="city" disabled>
@@ -669,23 +675,130 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Custom State Dropdown
+    const stateTrigger = document.getElementById('state-trigger');
+    const stateDropdown = document.getElementById('state-dropdown');
+    const stateOptions = document.getElementById('state-options');
+    const statePlaceholder = document.getElementById('state-placeholder');
+    const stateHidden = document.getElementById('state');
+    const stateWrapper = document.getElementById('state-select-wrapper');
+    let allStates = [];
+    
+    if (stateTrigger && stateDropdown) {
+        function renderStateOptions(states) {
+            stateOptions.innerHTML = '';
+            
+            states.forEach(state => {
+                const option = document.createElement('div');
+                option.style.cssText = 'padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #f5f5f5;';
+                option.textContent = state.name || state.state_name;
+                option.dataset.stateId = state.id;
+                option.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = '#f8f8f8';
+                });
+                option.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = 'white';
+                });
+                option.addEventListener('click', function() {
+                    selectState(state.id, state.name || state.state_name);
+                });
+                stateOptions.appendChild(option);
+            });
+        }
+        
+        function selectState(stateId, stateName) {
+            statePlaceholder.textContent = stateName;
+            statePlaceholder.classList.remove('state-placeholder');
+            statePlaceholder.classList.add('state-selected');
+            stateHidden.value = stateId;
+            stateDropdown.classList.remove('state-dropdown-open');
+            stateWrapper.classList.remove('state-dropdown-open');
+            
+            // Trigger city loading - call fetchCities directly
+            const citySelect = document.getElementById('city');
+            if (citySelect) {
+                // Show loading state
+                citySelect.innerHTML = '<option value="" disabled selected>Loading cities...</option>';
+                citySelect.disabled = true;
+                
+                fetch(`https://sip-admin.designonline.in/api/essentials?required=city&state_id=${stateId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(apiData => {
+                    citySelect.innerHTML = '<option value="" disabled selected>Select City</option>';
+                    
+                    let cities = [];
+                    
+                    // Check for city.normal structure
+                    if (apiData && apiData.data && apiData.data.city) {
+                        if (apiData.data.city.normal && Array.isArray(apiData.data.city.normal)) {
+                            cities = apiData.data.city.normal;
+                        } else if (Array.isArray(apiData.data.city)) {
+                            cities = apiData.data.city;
+                        }
+                    }
+                    
+                    if (cities.length > 0) {
+                        cities.forEach(city => {
+                            const option = document.createElement('option');
+                            option.value = city.id;
+                            option.textContent = city.name;
+                            citySelect.appendChild(option);
+                        });
+                        
+                        // Add "Other" option at the end
+                        const otherOption = document.createElement('option');
+                        otherOption.value = 'others';
+                        otherOption.textContent = 'Others';
+                        citySelect.appendChild(otherOption);
+                        
+                        citySelect.disabled = false;
+                    } else {
+                        citySelect.innerHTML = '<option value="" disabled selected>No data found</option>';
+                        citySelect.disabled = true;
+                    }
+                })
+                .catch(error => {
+                    console.warn('City API unavailable:', error.message);
+                    citySelect.innerHTML = '<option value="" disabled selected>No data found</option>';
+                    citySelect.disabled = true;
+                });
+            }
+        }
+        
+        // Toggle dropdown
+        stateTrigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            stateDropdown.classList.toggle('state-dropdown-open');
+            stateWrapper.classList.toggle('state-dropdown-open');
+        });
+        
+        // Close on outside click
+        document.addEventListener('click', function(e) {
+            if (!stateTrigger.contains(e.target) && !stateDropdown.contains(e.target)) {
+                stateDropdown.classList.remove('state-dropdown-open');
+                stateWrapper.classList.remove('state-dropdown-open');
+            }
+        });
+    }
+
     // Fetch and populate states dropdown
-    const stateSelect = document.getElementById('state');
     const citySelect = document.getElementById('city');
     const cityOtherInput = document.getElementById('city_other');
     const cityOtherSuggestions = document.getElementById('city-other-suggestions');
     let otherCities = [];
     
-    if (stateSelect && citySelect) {
+    if (citySelect) {
         
         const populateStates = (states) => {
-            states.forEach(state => {
-                const option = document.createElement('option');
-                option.value = state.id;
-                option.textContent = state.name || state.state_name;
-                option.dataset.stateName = state.name || state.state_name;
-                stateSelect.appendChild(option);
-            });
+            allStates = states;
+            if (stateOptions && renderStateOptions) {
+                renderStateOptions(states);
+            }
         };
         
         const fetchCities = (stateId) => {
@@ -763,14 +876,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error fetching states:', error);
         });
         
-        // Handle state selection change
-        stateSelect.addEventListener('change', function() {
-            const selectedStateId = this.value;
-            
-            if (selectedStateId) {
-                fetchCities(selectedStateId);
-            }
-        });
+        // State selection is now handled in the custom dropdown selectState function
         
         // City Other Autocomplete
         if (cityOtherInput && cityOtherSuggestions) {
@@ -1258,7 +1364,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Get all form values
             const fullName = this.querySelector('[name="name"]').value.trim();
             const yearOfCompletion = this.querySelector('[name="completion_year"]').value.trim();
-            const stateId = this.querySelector('[name="state"]').value;
+            const stateId = this.querySelector('#state').value;
             const cityValue = this.querySelector('[name="city"]').value;
             const cityOther = this.querySelector('[name="city_other"]').value.trim();
             const email = this.querySelector('[name="email"]').value.trim();

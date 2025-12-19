@@ -1692,3 +1692,125 @@ City Other Autocomplete */
 .field-error.show {
     display: block;
 }
+
+/* option {
+    max-height: 100px !important;
+    overflow-y: auto;
+} */
+
+/* State Custom Dropdown - Matches Current UI Exactly */
+.state-wrapper {
+    position: relative;
+    width: 100%;
+    /* margin-bottom: 15px; */
+}
+
+.state-select-wrapper {
+    position: relative;
+    cursor: pointer;
+    width: 100%;
+}
+
+.state-trigger {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid #B1040E;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: 'Montserrat', sans-serif;
+    color: #333;
+    background-color: transparent;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding-right: 45px;
+}
+
+.state-trigger:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(36, 152, 41, 0.1);
+}
+
+.state-placeholder {
+    color: #000;
+    flex: 1;
+}
+
+.state-selected {
+ color: #000 !important;
+}
+
+.state-arrow {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+    pointer-events: none;
+}
+
+/* Rotate state arrow when dropdown is open */
+.state-dropdown-open .state-arrow {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.state-arrow svg {
+    width: 12px;
+    height: 8px;
+}
+
+.state-arrow svg path {
+    stroke: #333;
+    stroke-width: 2;
+}
+
+.state-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #B1040E;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    z-index: 10000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 0px;
+    max-height: 200px;
+    overflow: hidden;
+}
+
+.state-dropdown-open {
+    display: block !important;
+}
+
+.state-options {
+    max-height: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.state-options>div {
+    padding: 12px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f5f5f5;
+    transition: background-color 0.2s ease;
+    font-size: 16px;
+    color: #333;
+}
+
+.state-options>div:last-child {
+    border-bottom: none;
+}
+
+.state-options>div:hover {
+    background-color: #f8f8f8;
+}
