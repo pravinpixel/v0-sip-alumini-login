@@ -549,6 +549,8 @@ header .container nav ul li a:hover {
     align-items: center;
     gap: 40px;
     max-width: 850px;
+    position: relative;
+    z-index: -1;
 }
 
 .faq .container .accordion {
@@ -1366,7 +1368,7 @@ iframe {
     position: relative;
     cursor: pointer;
     width: 100%;
-    z-index: 99999 !important;
+    z-index: 1001;
 }
 
 .occupation-trigger {
@@ -1424,7 +1426,7 @@ iframe {
     border: 1px solid #B1040E;
     border-radius: 0 0 8px 8px;
     margin-top: 0px;
-    z-index: 1000;
+    z-index: 1002;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border-top: none;
 }
