@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Center Location Others Fix</title>
+</head>
+<body>
+    <h2>Test Center Location "Others" Handling</h2>
+    
+    <h3>Test Case 1: Regular Center Selection</h3>
+    <p>When center_id = "123" (regular selection):</p>
+    <pre>
+Expected Payload:
+{
+    center_id: 123,
+    // no other_location field
+}
+    </pre>
+    
+    <h3>Test Case 2: Others Selection</h3>
+    <p>When center_id = "others" and other_location = "Custom Center Name":</p>
+    <pre>
+Expected Payload:
+{
+    center_id: "others",
+    other_location: "Custom Center Name"
+}
+    </pre>
+    
+    <h3>Implementation Details</h3>
+    <ul>
+        <li>✅ Added centerLocationOther variable to get text input value</li>
+        <li>✅ Added conditional logic similar to city "others" handling</li>
+        <li>✅ When centerLocationId === 'others', sends center_id: "others" and other_location: "text value"</li>
+        <li>✅ When regular selection, sends center_id: parseInt(centerLocationId)</li>
+        <li>✅ Added validation for center location text input</li>
+        <li>✅ Removed original center_id from payload object (now handled conditionally)</li>
+    </ul>
+    
+    <h3>Code Changes Made</h3>
+    <ol>
+        <li>Added centerLocationOther variable: <code>const centerLocationOther = registrationForm.querySelector('#center_location_other').value.trim();</code></li>
+        <li>Added conditional handling block after city handling</li>
+        <li>Removed center_id from initial payload object</li>
+        <li>Added validation and error handling for "others" case</li>
+    </ol>
+</body>
+</html>
+</pre>

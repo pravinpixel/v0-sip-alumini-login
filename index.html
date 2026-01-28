@@ -3438,6 +3438,7 @@ if (levelTrigger && levelDropdown) {
         const pincodeId = registrationForm.querySelector('#pincode').value.trim();
         const currentLocation = registrationForm.querySelector('[name="current_location"]').value.trim();
         const centerLocationId = registrationForm.querySelector('#center_location').value.trim();
+        const centerLocationOther = registrationForm.querySelector('#center_location_other').value.trim();
         const levelCompleted = registrationForm.querySelector('#level_completed').value.trim();
        
         // // Validate fields in form order
@@ -3525,7 +3526,6 @@ if (levelTrigger && levelDropdown) {
             occupation: occupation,
             current_location: currentLocation,
             level_completed: levelCompleted,
-            center_id: parseInt(centerLocationId),
             pincode_id: parseInt(pincodeId),
             location_type: locationType
         };
@@ -3552,6 +3552,30 @@ if (levelTrigger && levelDropdown) {
                 return;
             }
             payload.city_id = parseInt(cityValue);
+        }
+
+        // Handle center location or other_location
+        if (centerLocationId === 'others' || centerLocationOther) {
+            if (!centerLocationOther) {
+                showToast('Please enter your center location', 'error');
+                return;
+            }
+            
+            // Validate center location name format
+            const centerRegex = /^[A-Za-z\s'.-]+$/;
+            if (!centerRegex.test(centerLocationOther) || centerLocationOther.length < 2) {
+                showToast('Please enter a valid center location (letters and spaces only)', 'error');
+                return;
+            }
+            
+            payload.center_id = 'others';
+            payload.other_center = centerLocationOther;
+        } else {
+            if (!centerLocationId) {
+                showToast('Please select a center location', 'error');
+                return;
+            }
+            payload.center_id = parseInt(centerLocationId);
         }
         
         const submitButton = registrationForm.querySelector('button[type="submit"]');
