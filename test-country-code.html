@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Country Code Selection Test</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div style="max-width: 600px; margin: 50px auto; padding: 20px;">
+        <h2>Alumni Registration - Country Code Selection Test</h2>
+        
+        <form id="test-form">
+            <!-- Location Selection Radio Buttons -->
+            <div class="location-selection-wrapper">
+                <label class="location-selection-label">Select your location:</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="location-india" name="location" value="india" checked>
+                        <label for="location-india">India</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="location-outside" name="location" value="outside">
+                        <label for="location-outside">Outside India</label>
+                    </div>
+                </div>
+            </div>
+            
+            <input type="email" name="email" placeholder="Email Address" style="width: 100%; padding: 15px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 8px;">
+
+            <!-- Email OTP Verification (for Outside India) -->
+            <div class="email-verify-wrapper" id="email-verify-wrapper" style="display: none;">
+                <div class="email-action-buttons">
+                    <button type="button" id="edit-email-btn" class="edit-email-btn">Edit</button>
+                    <button type="button" id="cancel-email-btn" class="cancel-email-btn">Cancel</button>
+                </div>
+                <div class="email-verify-container">
+                    <button type="button" id="verify-email-btn" class="verify-btn" disabled style="padding: 10px 20px; background: #c41e3a; color: white; border: none; border-radius: 4px; cursor: pointer;">Send OTP</button>
+                    <span id="email-verification-status" class="verify-status"></span>
+                </div>
+                <div id="email-otp-timer" class="otp-timer"></div>
+                <input type="text" id="email-otp-input" class="otp-input-field" placeholder="Enter Email OTP" maxlength="6" inputmode="numeric" style="width: 100%; padding: 15px; margin-top: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                <input type="hidden" id="email-verified" value="0">
+            </div>
+
+            <!-- Mobile Verification with Country Code -->
+            <div class="mobile-verify-wrapper" style="display: block;">
+                <div class="mobile-action-buttons">
+                    <button type="button" id="edit-mobile-btn" class="edit-mobile-btn">Edit</button>
+                    <button type="button" id="cancel-mobile-btn" class="cancel-mobile-btn">Cancel</button>
+                </div>
+                <div class="mobile-input-container">
+                    <div class="country-code-wrapper" style="opacity: 0.6; pointer-events: none;">
+                        <select id="country-code-select" class="country-code-select" disabled style="background-color: #f5f5f5; cursor: not-allowed; color: #666;">
+                            <option value="+91" data-country="IN">🇮🇳 +91</option>
+                            <option value="+1" data-country="US">🇺🇸 +1</option>
+                            <option value="+44" data-country="GB">🇬🇧 +44</option>
+                            <option value="+61" data-country="AU">🇦🇺 +61</option>
+                            <option value="+971" data-country="AE">🇦🇪 +971</option>
+                            <option value="+65" data-country="SG">🇸🇬 +65</option>
+                            <option value="+49" data-country="DE">🇩🇪 +49</option>
+                            <option value="+33" data-country="FR">🇫🇷 +33</option>
+                            <option value="+86" data-country="CN">🇨🇳 +86</option>
+                            <option value="+81" data-country="JP">🇯🇵 +81</option>
+                            <option value="+82" data-country="KR">🇰🇷 +82</option>
+                            <option value="+852" data-country="HK">🇭🇰 +852</option>
+                            <option value="+66" data-country="TH">🇹🇭 +66</option>
+                            <option value="+84" data-country="VN">🇻🇳 +84</option>
+                            <option value="+62" data-country="ID">🇮🇩 +62</option>
+                            <option value="+63" data-country="PH">🇵🇭 +63</option>
+                            <option value="+94" data-country="LK">🇱🇰 +94</option>
+                            <option value="+880" data-country="BD">🇧🇩 +880</option>
+                            <option value="+977" data-country="NP">🇳🇵 +977</option>
+                            <option value="+92" data-country="PK">🇵🇰 +92</option>
+                        </select>
+                    </div>
+                    <input type="tel" id="mobile-number" name="contact" class="mobile-input" placeholder="Mobile Number" maxlength="15">
+                </div>
+                <button type="button" id="verify-mobile-btn" class="verify-btn" disabled>Verify</button>
+                <span id="verification-status" class="verify-status"></span>
+                <div id="otp-timer" class="otp-timer"></div>
+                <input type="text" id="otp-input" class="otp-input-field" placeholder="Enter OTP" maxlength="6" inputmode="numeric" style="width: 100%; padding: 15px; margin-top: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                <input type="hidden" id="mobile-verified" value="0">
+            </div>
+            
+            <button type="submit" style="width: 100%; padding: 15px; background: #c41e3a; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; margin-top: 20px;">Test Submit</button>
+        </form>
+        
+        <div id="test-results" style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px; display: none;">
+            <h3>Test Results:</h3>
+            <pre id="results-content"></pre>
+        </div>
+    </div>
+
+    <script>
+        // Toast notification function
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 600;
+                z-index: 10000;
+                max-width: 400px;
+                word-wrap: break-word;
+            `;
+            toast.style.backgroundColor = type === 'success' ? '#10b981' : '#ef4444';
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (document.body.contains(toast)) {
+                        document.body.removeChild(toast);
+                    }
+                }, 300);
+            }, 4000);
+        }
+
+        // Country code and mobile number functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const locationRadios = document.querySelectorAll('input[name="location"]');
+            const emailVerifyWrapper = document.getElementById('email-verify-wrapper');
+            const mobileVerifyWrapper = document.querySelector('.mobile-verify-wrapper');
+            const emailInput = document.querySelector('input[name="email"]');
+            const emailVerifyBtn = document.getElementById('verify-email-btn');
+            const emailOtpInput = document.getElementById('email-otp-input');
+            const emailVerified = document.getElementById('email-verified');
+            const countryCodeSelect = document.getElementById('country-code-select');
+            const mobileInput = document.getElementById('mobile-number');
+            const verifyMobileBtn = document.getElementById('verify-mobile-btn');
+            let verifiedEmail = '';
+            
+            // Format mobile number based on country and location
+            function formatMobileNumber(input) {
+                let value = input.value.replace(/[^0-9]/g, '');
+                const selectedLocation = document.querySelector('input[name="location"]:checked').value;
+                const selectedCountryCode = countryCodeSelect.value;
+                
+                if (selectedLocation === 'india' && selectedCountryCode === '+91') {
+                    value = value.slice(0, 10);
+                } else {
+                    value = value.slice(0, 15);
+                }
+                
+                input.value = value;
+                updateMobileVerifyButton();
+            }
+            
+            function updateMobileVerifyButton() {
+                const selectedLocation = document.querySelector('input[name="location"]:checked').value;
+                const mobileNumber = mobileInput.value.trim();
+                const selectedCountryCode = countryCodeSelect.value;
+                
+                let isValidLength = false;
+                
+                if (selectedLocation === 'india' && selectedCountryCode === '+91') {
+                    isValidLength = mobileNumber.length === 10;
+                } else {
+                    isValidLength = mobileNumber.length >= 7 && mobileNumber.length <= 15;
+                }
+                
+                verifyMobileBtn.disabled = !isValidLength || mobileInput.readOnly;
+            }
+            
+            function updateCountryCodeState() {
+                const selectedLocation = document.querySelector('input[name="location"]:checked').value;
+                const countryCodeWrapper = document.querySelector('.country-code-wrapper');
+                
+                if (selectedLocation === 'india') {
+                    countryCodeSelect.value = '+91';
+                    countryCodeSelect.disabled = true;
+                    countryCodeSelect.style.backgroundColor = '#f5f5f5';
+                    countryCodeSelect.style.cursor = 'not-allowed';
+                    countryCodeSelect.style.pointerEvents = 'none';
+                    countryCodeSelect.style.color = '#666';
+                    mobileInput.placeholder = 'Mobile Number (10 digits)';
+                    
+                    // Disable the entire wrapper
+                    if (countryCodeWrapper) {
+                        countryCodeWrapper.style.pointerEvents = 'none';
+                        countryCodeWrapper.style.opacity = '0.6';
+                        countryCodeWrapper.style.cursor = 'not-allowed';
+                    }
+                } else {
+                    countryCodeSelect.disabled = false;
+                    countryCodeSelect.style.backgroundColor = 'white';
+                    countryCodeSelect.style.cursor = 'pointer';
+                    countryCodeSelect.style.pointerEvents = 'auto';
+                    countryCodeSelect.style.color = '#333';
+                    mobileInput.placeholder = 'Mobile Number';
+                    
+                    // Enable the entire wrapper
+                    if (countryCodeWrapper) {
+                        countryCodeWrapper.style.pointerEvents = 'auto';
+                        countryCodeWrapper.style.opacity = '1';
+                        countryCodeWrapper.style.cursor = 'default';
+                    }
+                }
+                
+                updateMobileVerifyButton();
+            }
+            
+            // Handle location selection change
+            locationRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.value === 'india') {
+                        emailVerifyWrapper.style.display = 'none';
+                        mobileVerifyWrapper.style.display = 'block';
+                        updateCountryCodeState();
+                        showToast('Switched to India - Mobile OTP verification required, Country code locked to +91', 'success');
+                    } else if (this.value === 'outside') {
+                        emailVerifyWrapper.style.display = 'block';
+                        mobileVerifyWrapper.style.display = 'none';
+                        updateCountryCodeState();
+                        showToast('Switched to Outside India - Email OTP verification required, Country code selectable', 'success');
+                        checkEmailForVerification();
+                    }
+                });
+            });
+            
+            // Country code change handler
+            countryCodeSelect.addEventListener('change', function() {
+                const selectedLocation = document.querySelector('input[name="location"]:checked').value;
+                if (selectedLocation === 'india') {
+                    // Force back to +91 if somehow changed
+                    this.value = '+91';
+                    showToast('Country code is locked to +91 for India', 'error');
+                    return;
+                }
+                
+                updateMobileVerifyButton();
+                if (selectedLocation === 'outside') {
+                    mobileInput.value = '';
+                    updateMobileVerifyButton();
+                    showToast(`Country code changed to ${this.value}`, 'success');
+                }
+            });
+            
+            // Prevent dropdown opening in India mode
+            countryCodeSelect.addEventListener('mousedown', function(e) {
+                const selectedLocation = document.querySelector('input[name="location"]:checked').value;
+                if (selectedLocation === 'india') {
+                    e.preventDefault();
+                    showToast('Country code wrapper is disabled for India', 'error');
+                    return false;
+                }
+            });
+            
+            // Prevent keyboard interaction in India mode
+            countryCodeSelect.addEventListener('keydown', function(e) {
+                const selectedLocation = document.querySelector('input[name="location"]:checked').value;
+                if (selectedLocation === 'india') {
+                    e.preventDefault();
+                    showToast('Country code wrapper is disabled for India', 'error');
+                    return false;
+                }
+            });
+            
+            // Add wrapper event handlers
+            const countryCodeWrapper = document.querySelector('.country-code-wrapper');
+            if (countryCodeWrapper) {
+                countryCodeWrapper.addEventListener('click', function(e) {
+                    const selectedLocation = document.querySelector('input[name="location"]:checked').value;
+                    if (selectedLocation === 'india') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        showToast('Country code wrapper is disabled for India', 'error');
+                        return false;
+                    }
+                });
+            }
+            
+            // Mobile input handler
+            mobileInput.addEventListener('input', function() {
+                formatMobileNumber(this);
+            });
+            
+            // Email validation
+            function validateEmailFormat(email) {
+                const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]\.[a-zA-Z]{2,}$/;
+                return emailRegex.test(email);
+            }
+            
+            function checkEmailForVerification() {
+                const email = emailInput.value.trim();
+                const isValidEmail = validateEmailFormat(email);
+                emailVerifyBtn.disabled = !isValidEmail || emailInput.readOnly;
+            }
+            
+            // Email input validation
+            emailInput.addEventListener('input', function() {
+                const selectedLocation = document.querySelector('input[name="location"]:checked');
+                if (selectedLocation && selectedLocation.value === 'outside') {
+                    checkEmailForVerification();
+                }
+            });
+            
+            // Email verify button
+            emailVerifyBtn.addEventListener('click', function() {
+                const email = emailInput.value.trim();
+                if (!validateEmailFormat(email)) {
+                    showToast('Please enter a valid email address', 'error');
+                    return;
+                }
+                
+                emailVerifyBtn.textContent = 'Sending...';
+                emailVerifyBtn.disabled = true;
+                emailInput.readOnly = true;
+                
+                setTimeout(() => {
+                    showToast('Email OTP sent successfully! Use 123456 for testing.', 'success');
+                    emailVerifyBtn.style.display = 'none';
+                    emailOtpInput.style.display = 'block';
+                    emailOtpInput.focus();
+                }, 1000);
+            });
+            
+            // Email OTP verification
+            emailOtpInput.addEventListener('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+                
+                if (this.value.length === 6) {
+                    const otp = this.value;
+                    
+                    setTimeout(() => {
+                        if (otp === '123456') {
+                            emailVerified.value = '1';
+                            verifiedEmail = emailInput.value;
+                            emailOtpInput.style.display = 'none';
+                            const statusSpan = document.getElementById('email-verification-status');
+                            statusSpan.textContent = '✓ Verified';
+                            statusSpan.style.color = '#249829';
+                            statusSpan.style.display = 'inline';
+                            showToast('Email verified successfully!', 'success');
+                        } else {
+                            showToast('Invalid OTP. Use 123456 for testing.', 'error');
+                            emailOtpInput.value = '';
+                        }
+                    }, 500);
+                }
+            });
+            
+            // Mobile verify button
+            verifyMobileBtn.addEventListener('click', function() {
+                const selectedLocation = document.querySelector('input[name="location"]:checked').value;
+                const countryCode = countryCodeSelect.value;
+                const mobile = mobileInput.value.trim();
+                const fullMobileNumber = countryCode + mobile;
+                
+                let isValidMobile = false;
+                if (selectedLocation === 'india' && countryCode === '+91') {
+                    isValidMobile = mobile.length === 10;
+                    if (!isValidMobile) {
+                        showToast('Please enter a valid 10-digit mobile number', 'error');
+                        return;
+                    }
+                } else {
+                    isValidMobile = mobile.length >= 7 && mobile.length <= 15;
+                    if (!isValidMobile) {
+                        showToast('Please enter a valid mobile number (7-15 digits)', 'error');
+                        return;
+                    }
+                }
+                
+                verifyMobileBtn.textContent = 'Sending...';
+                verifyMobileBtn.disabled = true;
+                mobileInput.readOnly = true;
+                
+                setTimeout(() => {
+                    showToast(`Mobile OTP sent to ${fullMobileNumber}! Use 123456 for testing.`, 'success');
+                    verifyMobileBtn.style.display = 'none';
+                    document.getElementById('otp-input').style.display = 'block';
+                    document.getElementById('otp-input').focus();
+                }, 1000);
+            });
+            
+            // Mobile OTP verification
+            document.getElementById('otp-input').addEventListener('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+                
+                if (this.value.length === 6) {
+                    const otp = this.value;
+                    
+                    setTimeout(() => {
+                        if (otp === '123456') {
+                            document.getElementById('mobile-verified').value = '1';
+                            this.style.display = 'none';
+                            const statusSpan = document.getElementById('verification-status');
+                            statusSpan.textContent = '✓ Verified';
+                            statusSpan.style.color = '#249829';
+                            statusSpan.style.display = 'inline';
+                            showToast('Mobile verified successfully!', 'success');
+                        } else {
+                            showToast('Invalid OTP. Use 123456 for testing.', 'error');
+                            this.value = '';
+                        }
+                    }, 500);
+                }
+            });
+            
+            // Initialize
+            function initializeForm() {
+                // Set default disabled state for India
+                const countryCodeWrapper = document.querySelector('.country-code-wrapper');
+                countryCodeSelect.value = '+91';
+                countryCodeSelect.disabled = true;
+                countryCodeSelect.style.backgroundColor = '#f5f5f5';
+                countryCodeSelect.style.cursor = 'not-allowed';
+                countryCodeSelect.style.pointerEvents = 'none';
+                countryCodeSelect.style.color = '#666';
+                mobileInput.placeholder = 'Mobile Number (10 digits)';
+                
+                if (countryCodeWrapper) {
+                    countryCodeWrapper.style.pointerEvents = 'none';
+                    countryCodeWrapper.style.opacity = '0.6';
+                    countryCodeWrapper.style.cursor = 'not-allowed';
+                }
+                
+                updateMobileVerifyButton();
+            }
+            
+            // Initialize form on load
+            initializeForm();
+            
+            // Form submission test
+            document.getElementById('test-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const selectedLocation = document.querySelector('input[name="location"]:checked').value;
+                const email = emailInput.value.trim();
+                const countryCode = countryCodeSelect.value;
+                const mobile = mobileInput.value.trim();
+                const fullMobileNumber = countryCode + mobile;
+                
+                const results = {
+                    location: selectedLocation,
+                    email: email,
+                    countryCode: countryCode,
+                    mobileNumber: mobile,
+                    fullMobileNumber: fullMobileNumber,
+                    emailVerified: emailVerified.value === '1',
+                    mobileVerified: document.getElementById('mobile-verified').value === '1'
+                };
+                
+                // Validation
+                if (selectedLocation === 'outside' && emailVerified.value !== '1') {
+                    showToast('Please verify your email address first', 'error');
+                    return;
+                }
+                
+                if (selectedLocation === 'india' && document.getElementById('mobile-verified').value !== '1') {
+                    showToast('Please verify your mobile number first', 'error');
+                    return;
+                }
+                
+                document.getElementById('test-results').style.display = 'block';
+                document.getElementById('results-content').textContent = JSON.stringify(results, null, 2);
+                showToast('Form validation passed!', 'success');
+            });
+        });
+    </script>
+</body>
+</html>

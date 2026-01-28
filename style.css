@@ -183,6 +183,16 @@ header .container nav ul li a:hover {
     font-weight: 700;
 }
 
+.common_heading_Two {
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.common_heading_Three {
+    font-size: 18px;
+    font-weight: 500;
+}
+
 .common_heading span {
     position: relative;
     text-decoration-thickness: 12%;
@@ -207,7 +217,14 @@ header .container nav ul li a:hover {
     text-decoration-color: #ffffff;
 }
 
+.common_radio {
+    display: flex;
+    gap: 10px;
+}
 
+.open_form {
+    cursor: pointer;
+}
 
 
 .alumni_legacy .container {
@@ -1343,6 +1360,8 @@ iframe {
 
 
 
+
+
 .verify-status {
     position: absolute;
     right: 10px;
@@ -1355,6 +1374,44 @@ iframe {
 
 .otp-input-field {
     display: none;
+}
+
+/* OTP Verify Wrapper */
+.otp-verify-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.otp-verify-wrapper .otp-input-field,
+.otp-verify-wrapper .otp-input-visible {
+    padding-right: 100px !important;
+    margin-bottom: 0;
+}
+
+.otp-verify-wrapper .verify-btn {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 8px 16px;
+    background: #249829;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.otp-verify-wrapper .verify-btn:hover:not(:disabled) {
+    background: #1d7a21;
+}
+
+.otp-verify-wrapper .verify-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
 }
 
 /* Occupation Select Styles */
@@ -1386,6 +1443,7 @@ iframe {
     transition: all 0.3s ease;
     box-sizing: border-box;
     width: 100%;
+
 }
 
 .occupation-placeholder {
@@ -1444,6 +1502,101 @@ iframe {
 }
 
 .occupation-options {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* level */
+
+.level-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+.level-select-wrapper {
+    position: relative;
+    cursor: pointer;
+    width: 100%;
+    z-index: 1000;
+}
+
+.level-trigger {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid #B1040E;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: 'Montserrat', sans-serif;
+    color: #000;
+    background-color: transparent;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.level-placeholder {
+    color: #000;
+}
+
+.level-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+    pointer-events: none;
+}
+
+/* Rotate level arrow when dropdown is open */
+.level-dropdown-open .level-arrow {
+    transform: rotate(180deg) !important;
+}
+
+/* level arrow SVG styling */
+.level-arrow svg {
+    width: 12px;
+    height: 8px;
+}
+
+.level-arrow svg path {
+    stroke: #333;
+    stroke-width: 2;
+}
+
+.level-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #B1040E;
+    border-radius: 0 0 8px 8px;
+    margin-top: 0px;
+    z-index: 1002;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-top: none;
+}
+
+.level-dropdown-open {
+    display: block;
+
+}
+
+.level-search {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-bottom: 1px solid #eee;
+    box-sizing: border-box;
+    outline: none;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.level-options {
     max-height: 200px;
     overflow-y: auto;
 }
@@ -1592,12 +1745,15 @@ imer */
 }
 
 .edit-mobile-btn,
-.cancel-mobile-btn {
+.cancel-mobile-btn,
+.edit-email-btn,
+.cancel-email-btn {
     display: none;
     background: transparent;
     border: none;
     color: #249829;
     font-size: 14px;
+    margin-bottom: 20px;
     font-weight: 600;
     cursor: pointer;
     text-decoration: underline;
@@ -1605,21 +1761,27 @@ imer */
 }
 
 .edit-mobile-btn.show,
-.cancel-mobile-btn.show {
+.cancel-mobile-btn.show,
+.edit-email-btn.show,
+.cancel-email-btn.show {
     display: inline-block;
 }
 
 .edit-mobile-btn:hover,
-.cancel-mobile-btn:hover {
+.cancel-mobile-btn:hover,
+.edit-email-btn:hover,
+.cancel-email-btn:hover {
     color: #1d7a21;
 }
 
-.cancel-mobile-btn {
+.cancel-mobile-btn,
+.cancel-email-btn {
     color: #ef4444;
     position: relative;
 }
 
-.cancel-mobile-btn:hover {
+.cancel-mobile-btn:hover,
+.cancel-email-btn:hover {
     color: #dc2626;
 }
 
@@ -1944,4 +2106,1095 @@ City Other Autocomplete */
 .city-options>div.others-option {
     font-style: italic;
     color: #666;
+}
+
+/* Ensure step containers don't interfere with existing form styling */
+#step-1-fields,
+#step-2-fields {
+    width: 100%;
+}
+
+#step-1-fields>*,
+#step-2-fields>* {
+    /* Inherit all existing form styling */
+}
+
+/* Ensure form navigation buttons maintain proper styling */
+.form-navigation .common_btn {
+    /* Inherit existing button styling */
+}
+
+/* Fix mobile action buttons positioning within step containers */
+#step-1-fields .mobile-action-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: -22px;
+    margin-bottom: -7px;
+    width: 100%;
+}
+
+#step-1-fields .edit-mobile-btn,
+#step-1-fields .cancel-mobile-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: #249829;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+}
+
+#step-1-fields .edit-mobile-btn.show,
+#step-1-fields .cancel-mobile-btn.show {
+    display: inline-block;
+}
+
+#step-1-fields .edit-mobile-btn:hover,
+#step-1-fields .cancel-mobile-btn:hover {
+    color: #1d7a21;
+}
+
+#step-1-fields .cancel-mobile-btn {
+    color: #ef4444;
+}
+
+#step-1-fields .cancel-mobile-btn:hover {
+    color: #dc2626;
+}
+
+/* Fix OTP input styling within step containers */
+#step-1-fields .otp-input-field {
+    display: none;
+}
+
+#step-1-fields .otp-input-visible {
+    display: block !important;
+}
+
+/* Fix OTP timer styling within step containers */
+#step-1-fields .otp-timer {
+    display: none;
+    font-size: 14px;
+    color: #666;
+    margin-top: -22px;
+    margin-bottom: -7px;
+    text-align: right;
+    justify-content: flex-end;
+}
+
+#step-1-fields .otp-timer.show {
+    display: flex;
+}
+
+#step-1-fields .otp-timer .resend-link {
+    color: #249829;
+    cursor: pointer;
+    text-decoration: underline;
+    font-weight: 600;
+}
+
+#step-1-fields .otp-timer .resend-link:hover {
+    color: #1d7a21;
+}
+
+/* Fix mobile input styling within step containers - minimal overrides */
+#step-1-fields .mobile-input[readonly] {
+    background-color: transparent !important;
+    cursor: default;
+}
+
+/* Ensure verify button positioning */
+#step-1-fields .verify-btn.d-none {
+    display: none !important;
+}
+
+/* Ensure Next button appears at the bottom of Step 1 */
+#step-1-fields #next-step-btn {
+    margin-top: 20px;
+    width: 100%;
+    display: block;
+    clear: both;
+}
+
+/* Ensure OTP input field doesn't interfere with button positioning */
+#step-1-fields .otp-input-field,
+#step-1-fields .otp-input-visible {
+    margin-bottom: 15px;
+    clear: both;
+}
+
+/* Ensure mobile action buttons don't interfere with Next button */
+#step-1-fields .mobile-action-buttons {
+    margin-bottom: 10px;
+    clear: both;
+}
+
+/* Ensure OTP timer doesn't interfere with Next button */
+#step-1-fields .otp-timer {
+    margin-bottom: 10px;
+    clear: both;
+}
+
+/* Ensure mobile verify wrapper doesn't interfere */
+#step-1-fields .mobile-verify-wrapper {
+    margin-bottom: 15px;
+    clear: both;
+}
+
+/* Age Confirmation Popup Styles */
+.age-confirmation-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    display: none;
+}
+
+.age-confirmation-popup.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.age-popup-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.age-popup-content {
+    position: relative;
+    background-color: white;
+    padding: 40px;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    z-index: 10001;
+}
+
+.age-popup-content h3 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #333;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.age-popup-content p {
+    font-size: 16px;
+    line-height: 24px;
+    margin-bottom: 30px;
+    color: #666;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.age-popup-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.age-popup-buttons .common_btn {
+    min-width: 150px;
+    margin: 0;
+}
+
+.age-cancel-btn {
+    min-width: 150px;
+    padding: 12px 24px;
+    border: 2px solid #ddd;
+    background-color: transparent;
+    color: #666;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.age-cancel-btn:hover {
+    border-color: #999;
+    color: #333;
+    background-color: #f5f5f5;
+}
+
+.no-interest-ui {
+    margin-top: 20px;
+}
+
+.interest-card {
+    background: #fff;
+    border-left: 4px solid #d32f2f;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.interest-card h3 {
+    font-size: 18px;
+    color: #c62828;
+    margin-bottom: 10px;
+}
+
+.interest-card p {
+    font-size: 15px;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.wish-box {
+    background: #fff5f5;
+    padding: 32px;
+    border-radius: 8px;
+}
+
+.wish-box p {
+    margin-bottom: 10px;
+    color: black;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.wish-box ul {
+    font-size: 15px;
+    margin: 8px 0 0;
+    padding-left: 18px;
+}
+
+.wish-box li {
+    font-size: 15px;
+    margin-bottom: 10px;
+}
+
+.wish-box li:last-child {
+    margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .age-popup-content {
+        padding: 30px 20px;
+        margin: 20px;
+    }
+
+    .age-popup-content h3 {
+        font-size: 20px;
+    }
+
+    .age-popup-content p {
+        font-size: 14px;
+    }
+
+    .age-popup-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .age-popup-buttons .common_btn,
+    .age-cancel-btn {
+        width: 100%;
+        max-width: 250px;
+    }
+}
+
+/* Responsive styles for age confirmation popup */
+@media (max-width: 768px) {
+    .age-popup-content {
+        padding: 30px 20px;
+        margin: 20px;
+    }
+
+    .age-popup-buttons {
+        flex-direction: column;
+    }
+
+    .age-popup-buttons .common_btn {
+        width: 100%;
+        min-width: auto;
+    }
+}
+
+.country-wrapper {
+    position: relative;
+    /* margin-bottom: 20px; */
+}
+
+.country-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.country-input {
+    width: 100%;
+    padding: 15px 20px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    color: #333;
+    background-color: #f8f9fa;
+    cursor: not-allowed;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.country-input:focus {
+    outline: none;
+    border-color: #c41e3a;
+    box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.1);
+}
+
+.country-input::placeholder {
+    color: #999;
+    font-weight: 400;
+}
+
+@media (max-width: 768px) {
+    .country-input {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .country-input {
+        padding: 10px 14px;
+        font-size: 14px;
+    }
+}
+
+/* Pincode Dropdown Styles */
+.pincode-wrapper {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.pincode-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.pincode-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    border: 1px solid #c41e3a;
+    border-radius: 8px;
+    /* background-color: white; */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 24px;
+    box-sizing: border-box;
+}
+
+/* .pincode-trigger:hover:not(.disabled) {
+    border-color: #c41e3a;
+} */
+
+.pincode-trigger.disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.pincode-placeholder {
+    font-size: 16px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 400;
+    color: #000;
+    flex: 1;
+    /* text-align: center; */
+}
+
+.pincode-trigger:not(.disabled) .pincode-placeholder.pincode-selected {
+    color: #000;
+}
+
+.pincode-arrow {
+    transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+}
+
+.pincode-select-wrapper.open .pincode-arrow {
+    transform: rotate(180deg);
+}
+
+.pincode-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border: 1px solid #c41e3a;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.pincode-select-wrapper.open .pincode-dropdown {
+    display: block;
+}
+
+.pincode-options {
+    padding: 0;
+}
+
+.pincode-option {
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    color: #333;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease;
+}
+
+.pincode-option:hover {
+    background-color: #f8f9fa;
+}
+
+.pincode-option:last-child {
+    border-bottom: none;
+}
+
+.pincode-option.selected {
+    background-color: #c41e3a;
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .pincode-trigger {
+        padding: 12px 16px;
+    }
+
+    .pincode-placeholder {
+        font-size: 14px;
+    }
+
+    .pincode-option {
+        padding: 10px 16px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .pincode-trigger {
+        padding: 10px 14px;
+    }
+
+    .pincode-placeholder {
+        font-size: 14px;
+    }
+
+    .pincode-option {
+        padding: 8px 14px;
+        font-size: 14px;
+    }
+}
+
+/* Pincode Dropdown Open State */
+.pincode-wrapper.pincode-dropdown-open .pincode-trigger {
+    border-color: #c41e3a;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.pincode-wrapper.pincode-dropdown-open .pincode-dropdown {
+    display: block;
+}
+
+/* Center Location Dropdown Styles */
+.center-location-wrapper {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.center-location-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.center-location-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    border: 1px solid #c41e3a;
+    border-radius: 8px;
+    /* background-color: white; */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 24px;
+    box-sizing: border-box;
+}
+
+.center-location-trigger:hover:not(.disabled) {
+    border-color: #c41e3a;
+}
+
+.center-location-trigger.disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.center-location-placeholder {
+    font-size: 16px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 400;
+    color: #000;
+    flex: 1;
+    /* text-align: left; */
+}
+
+.center-location-trigger:not(.disabled) .center-location-placeholder.center-location-selected {
+    color: #000;
+}
+
+.center-location-arrow {
+    transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+}
+
+.center-location-select-wrapper.open .center-location-arrow {
+    transform: rotate(180deg);
+}
+
+.center-location-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border: 1px solid #c41e3a;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.center-location-select-wrapper.open .center-location-dropdown {
+    display: block;
+}
+
+.center-location-options {
+    padding: 0;
+}
+
+.center-location-option {
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    color: #333;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease;
+}
+
+.center-location-option:hover {
+    background-color: #f8f9fa;
+}
+
+.center-location-option:last-child {
+    border-bottom: none;
+}
+
+.center-location-option.selected {
+    background-color: #c41e3a;
+    color: white;
+}
+
+.center-location-option.others-option {
+    font-style: italic;
+    color: #666;
+}
+
+/* .center-location-other-wrapper {
+    margin-bottom: 20px;
+} */
+
+.center-location-other-wrapper input {
+    width: 100%;
+    padding: 15px 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 400;
+    color: #000;
+    background-color: white;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.center-location-other-wrapper input:focus {
+    outline: none;
+    border-color: #c41e3a;
+    box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.1);
+}
+
+/* Center Location Dropdown Open State */
+.center-location-wrapper.center-location-dropdown-open .center-location-trigger {
+    border-color: #c41e3a;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.center-location-wrapper.center-location-dropdown-open .center-location-dropdown {
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .center-location-trigger {
+        padding: 12px 16px;
+    }
+
+    .center-location-placeholder {
+        font-size: 14px;
+    }
+
+    .center-location-option {
+        padding: 10px 16px;
+        font-size: 14px;
+    }
+
+    .center-location-other-wrapper input {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .center-location-trigger {
+        padding: 10px 14px;
+    }
+
+    .center-location-placeholder {
+        font-size: 14px;
+    }
+
+    .center-location-option {
+        padding: 8px 14px;
+        font-size: 14px;
+    }
+
+    .center-location-other-wrapper input {
+        padding: 10px 14px;
+        font-size: 14px;
+    }
+}
+
+/* Level Completed Dropdown Styles */
+.level-completed-wrapper {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.level-completed-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.level-completed-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    border: 1px solid #c41e3a;
+    border-radius: 8px;
+    background-color: transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 24px;
+    box-sizing: border-box;
+}
+
+.level-completed-trigger:hover {
+    border-color: #c41e3a;
+}
+
+.level-completed-placeholder {
+    font-size: 16px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 400;
+    color: #000;
+    flex: 1;
+    text-align: left;
+}
+
+.level-completed-placeholder.level-completed-selected {
+    color: #333;
+}
+
+.level-completed-arrow {
+    transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+}
+
+.level-completed-select-wrapper.open .level-completed-arrow {
+    transform: rotate(180deg);
+}
+
+.level-completed-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border: 1px solid #c41e3a;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.level-completed-select-wrapper.open .level-completed-dropdown {
+    display: block;
+}
+
+.level-completed-options {
+    padding: 0;
+}
+
+.level-completed-option {
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    color: #333;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease;
+}
+
+.level-completed-option:hover {
+    background-color: #f8f9fa;
+}
+
+.level-completed-option:last-child {
+    border-bottom: none;
+}
+
+/* .level-completed-option.selected {
+    background-color: #c41e3a;
+    color: white;
+} */
+
+/* Level Completed Dropdown Open State */
+.level-completed-wrapper.level-completed-dropdown-open .level-completed-trigger {
+    border-color: #c41e3a;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.level-completed-wrapper.level-completed-dropdown-open .level-completed-dropdown {
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .level-completed-trigger {
+        padding: 12px 16px;
+    }
+
+    .level-completed-placeholder {
+        font-size: 14px;
+    }
+
+    .level-completed-option {
+        padding: 10px 16px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .level-completed-trigger {
+        padding: 10px 14px;
+    }
+
+    .level-completed-placeholder {
+        font-size: 14px;
+    }
+
+    .level-completed-option {
+        padding: 8px 14px;
+        font-size: 14px;
+    }
+}
+
+/* Location Selection Radio Buttons */
+.location-selection-wrapper {
+    margin-bottom: 20px;
+}
+
+.location-selection-label {
+    display: block;
+    font-size: 16px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 12px;
+}
+
+.location-radio-group {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.location-radio-option {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    gap: 10px;
+}
+
+.location-radio-option input[type="radio"] {
+    display: none;
+}
+
+.location-radio-custom {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ddd;
+    border-radius: 50%;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.location-radio-option input[type="radio"]:checked+.location-radio-custom {
+    border-color: #c41e3a;
+    background-color: #c41e3a;
+}
+
+.location-radio-option input[type="radio"]:checked+.location-radio-custom::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background-color: white;
+    border-radius: 50%;
+}
+
+.location-radio-text {
+    user-select: none;
+}
+
+.location-radio-option:hover .location-radio-custom {
+    border-color: #c41e3a;
+}
+
+@media (max-width: 768px) {
+    .location-radio-group {
+        gap: 20px;
+    }
+
+    .location-radio-option {
+        font-size: 14px;
+    }
+
+    .location-selection-label {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .location-radio-group {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+}
+
+/* Location Selection Disabled State */
+.location-selection-wrapper.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.location-selection-wrapper.disabled .location-radio-option {
+    cursor: not-allowed;
+}
+
+.location-selection-wrapper.disabled .location-radio-text {
+    color: #999;
+}
+
+/* Ensure OTP elements are hidden on page load */
+.otp-input-field {
+    display: none !important;
+}
+
+.otp-timer {
+    display: none !important;
+}
+
+.otp-timer.show {
+    display: block !important;
+}
+
+.email-action-buttons {
+    display: flex;
+    gap: 10px
+}
+
+.edit-mobile-btn,
+.cancel-mobile-btn,
+.edit-email-btn,
+.cancel-email-btn {
+    display: none !important;
+}
+
+.edit-mobile-btn.show,
+.cancel-mobile-btn.show,
+.edit-email-btn.show,
+.cancel-email-btn.show {
+    display: inline-block !important;
+}
+
+/* Country Code Wrapper Styles */
+.mobile-input-container {
+    display: flex;
+    align-items: stretch;
+    /* border: 1px solid #ddd; */
+    border-radius: 5px;
+    overflow: hidden;
+    /* background: white; */
+    margin-bottom: 10px;
+}
+
+.country-code-wrapper {
+    display: flex;
+    align-items: center;
+    position: relative;
+    top: -4px;
+    /* background: #f8f9fa; */
+    /* border-right: 1px solid #ddd; */
+    min-width: 120px;
+}
+
+.country-code-wrapper.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+    /* background: #f5f5f5; */
+}
+
+.country-code-select {
+    border: none;
+    background: transparent;
+    padding: 12px 8px;
+    font-size: 14px;
+    font-family: 'Montserrat', sans-serif;
+    cursor: pointer;
+    outline: none;
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.country-code-select:disabled {
+    cursor: not-allowed;
+    color: #666;
+}
+
+.country-code-wrapper.disabled .country-code-select {
+    /* background: #f5f5f5; */
+    cursor: not-allowed;
+    color: #666;
+}
+
+.mobile-input-container .mobile-input {
+    border: none;
+    flex: 1;
+    padding: 12px 15px;
+    font-size: 16px;
+    font-family: 'Montserrat', sans-serif;
+    outline: none;
+    background: transparent;
+}
+
+.mobile-input-container .mobile-input:focus {
+    outline: none;
+}
+
+.mobile-input-container:focus-within {
+    border-color: #c41e3a;
+    box-shadow: 0 0 0 2px rgba(196, 30, 58, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .mobile-input-container {
+        flex-direction: column;
+    }
+
+    .country-code-wrapper {
+        border-right: none;
+        border-bottom: 1px solid #ddd;
+        min-width: auto;
+    }
+
+    .country-code-select {
+        padding: 10px 8px;
+        font-size: 14px;
+    }
+
+    .mobile-input-container .mobile-input {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .country-code-select {
+        padding: 8px 6px;
+        font-size: 13px;
+    }
+
+    .mobile-input-container .mobile-input {
+        padding: 8px 10px;
+        font-size: 13px;
+    }
 }

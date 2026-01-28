@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Radio Button Fix</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .form-group { margin: 15px 0; }
+        .radio-group { display: flex; gap: 20px; margin: 10px 0; }
+        .email-verify-wrapper, .mobile-verify-wrapper { 
+            border: 1px solid #ccc; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 5px;
+        }
+        .country-code-wrapper.disabled { 
+            opacity: 0.6; 
+            pointer-events: none; 
+        }
+        .hidden { display: none; }
+        
+        /* Disabled Radio Button Styles */
+        input[type="radio"]:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        input[type="radio"]:disabled + label,
+        label:has(input[type="radio"]:disabled) {
+            opacity: 0.6;
+            cursor: not-allowed;
+            color: #999;
+        }
+        
+        .verify-btn { 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            padding: 8px 16px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+        }
+        .verify-btn:disabled { 
+            background: #ccc; 
+            cursor: not-allowed; 
+        }
+    </style>
+</head>
+<body>
+    <h2>Test Radio Button Location Selection</h2>
+    
+    <div class="form-group">
+        <label>Select Location:</label>
+        <div class="radio-group">
+            <label>
+                <input type="radio" name="location_type" value="0" checked> India
+            </label>
+            <label>
+                <input type="radio" name="location_type" value="1"> Outside India
+            </label>
+        </div>
+    </div>
+
+    <div class="email-verify-wrapper" style="display: none;">
+        <h4>Email Verification (Outside India)</h4>
+        <input type="email" name="email" placeholder="Email Address">
+        <button type="button" id="verify-email-btn" class="verify-btn">Verify Email</button>
+        <div id="email-verification-status"></div>
+        <input type="hidden" id="email-verified" value="0">
+    </div>
+
+    <div class="mobile-verify-wrapper">
+        <h4>Mobile Verification</h4>
+        <div class="country-code-wrapper disabled">
+            <select id="country-code-select">
+                <option value="+91">🇮🇳 +91</option>
+                <option value="+1">🇺🇸 +1</option>
+                <option value="+44">🇬🇧 +44</option>
+            </select>
+        </div>
+        <input type="tel" id="mobile-number" placeholder="Mobile Number">
+        <button type="button" id="verify-mobile-btn" class="verify-btn">Verify Mobile</button>
+        <div id="mobile-verification-status"></div>
+        <input type="hidden" id="mobile-verified" value="0">
+    </div>
+
+    <div id="status"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const locationRadios = document.querySelectorAll('input[name="location_type"]');
+            const emailVerifyWrapper = document.querySelector('.email-verify-wrapper');
+            const mobileVerifyWrapper = document.querySelector('.mobile-verify-wrapper');
+            const countryCodeWrapper = document.querySelector('.country-code-wrapper');
+            const countryCodeSelect = document.getElementById('country-code-select');
+            const statusDiv = document.getElementById('status');
+            const emailVerifyBtn = document.getElementById('verify-email-btn');
+            const mobileVerifyBtn = document.getElementById('verify-mobile-btn');
+            const emailVerified = document.getElementById('email-verified');
+            const mobileVerified = document.getElementById('mobile-verified');
+            const emailStatus = document.getElementById('email-verification-status');
+            const mobileStatus = document.getElementById('mobile-verification-status');
+
+            function updateStatus(message) {
+                statusDiv.innerHTML = `<p><strong>Status:</strong> ${message}</p>`;
+            }
+
+            // Function to disable location radio buttons after verification
+            function disableLocationRadios() {
+                locationRadios.forEach(radio => {
+                    radio.disabled = true;
+                    const label = radio.closest('label') || radio.parentElement;
+                    if (label) {
+                        label.style.opacity = '0.6';
+                        label.style.cursor = 'not-allowed';
+                    }
+                });
+                updateStatus('Radio buttons disabled - verification completed!');
+            }
+
+            function updateCountryCodeState() {
+                const selectedLocationElement = document.querySelector('input[name="location_type"]:checked');
+                if (!selectedLocationElement) {
+                    updateStatus('No location selected');
+                    return;
+                }
+
+                const selectedLocation = selectedLocationElement.value;
+                
+                if (selectedLocation === '0') { // India
+                    if (countryCodeSelect) {
+                        countryCodeSelect.value = '+91';
+                    }
+                    if (countryCodeWrapper) {
+                        countryCodeWrapper.classList.add('disabled');
+                    }
+                    updateStatus('India selected - Country code locked to +91');
+                } else if (selectedLocation === '1') { // Outside India
+                    if (countryCodeWrapper) {
+                        countryCodeWrapper.classList.remove('disabled');
+                    }
+                    updateStatus('Outside India selected - Country code selectable');
+                }
+            }
+
+            // Handle location selection change
+            locationRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.value === '0') { // India
+                        if (emailVerifyWrapper) {
+                            emailVerifyWrapper.style.display = 'none';
+                        }
+                        if (mobileVerifyWrapper) {
+                            mobileVerifyWrapper.style.display = 'block';
+                        }
+                        updateCountryCodeState();
+                    } else if (this.value === '1') { // Outside India
+                        if (emailVerifyWrapper) {
+                            emailVerifyWrapper.style.display = 'block';
+                        }
+                        if (mobileVerifyWrapper) {
+                            mobileVerifyWrapper.style.display = 'block';
+                        }
+                        updateCountryCodeState();
+                    }
+                });
+            });
+
+            // Initialize on page load
+            updateCountryCodeState();
+            
+            // Add verification button functionality for testing
+            if (emailVerifyBtn) {
+                emailVerifyBtn.addEventListener('click', function() {
+                    // Simulate email verification
+                    emailVerified.value = '1';
+                    emailStatus.textContent = '✓ Email Verified';
+                    emailStatus.style.color = 'green';
+                    disableLocationRadios();
+                });
+            }
+            
+            if (mobileVerifyBtn) {
+                mobileVerifyBtn.addEventListener('click', function() {
+                    // Simulate mobile verification
+                    mobileVerified.value = '1';
+                    mobileStatus.textContent = '✓ Mobile Verified';
+                    mobileStatus.style.color = 'green';
+                    disableLocationRadios();
+                });
+            }
+        });
+    </script>
+</body>
+</html>

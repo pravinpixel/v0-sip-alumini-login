@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Contact Number Country Code</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .form-group { margin: 20px 0; }
+        .radio-group { display: flex; gap: 20px; margin: 10px 0; }
+        .mobile-verify-wrapper { 
+            border: 1px solid #ccc; 
+            padding: 20px; 
+            margin: 15px 0; 
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        
+        /* Country Code Wrapper Styles */
+        .mobile-input-container {
+            display: flex;
+            align-items: stretch;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            background: white;
+            margin-bottom: 10px;
+        }
+
+        .country-code-wrapper {
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            border-right: 1px solid #ddd;
+            min-width: 120px;
+        }
+
+        .country-code-wrapper.disabled {
+            opacity: 0.6;
+            pointer-events: none;
+            background: #f5f5f5;
+        }
+
+        .country-code-select {
+            border: none;
+            background: transparent;
+            padding: 12px 8px;
+            font-size: 14px;
+            cursor: pointer;
+            outline: none;
+            width: 100%;
+        }
+
+        .country-code-select:disabled {
+            cursor: not-allowed;
+            color: #666;
+        }
+
+        .mobile-input-container .mobile-input {
+            border: none;
+            flex: 1;
+            padding: 12px 15px;
+            font-size: 16px;
+            outline: none;
+            background: transparent;
+        }
+
+        .mobile-input-container:focus-within {
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+        }
+        
+        .verify-btn { 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            margin: 10px 5px 0 0;
+        }
+        .verify-btn:disabled { 
+            background: #ccc; 
+            cursor: not-allowed; 
+        }
+        
+        .status { 
+            margin: 15px 0; 
+            padding: 15px; 
+            border-radius: 4px; 
+            font-weight: bold;
+        }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        
+        .test-info {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Contact Number Country Code Test</h1>
+    
+    <div class="test-info">
+        <h3>Test Instructions:</h3>
+        <ul>
+            <li><strong>India Selection:</strong> Country code should be locked to +91, input limited to 10 digits</li>
+            <li><strong>Outside India Selection:</strong> Country code should be selectable, input allows 7-15 digits</li>
+            <li><strong>Validation:</strong> Verify button should enable/disable based on valid input length</li>
+            <li><strong>API Integration:</strong> Full number (country code + mobile) should be sent to API</li>
+        </ul>
+    </div>
+    
+    <div class="test-section">
+        <div class="form-group">
+            <label><strong>Select Location:</strong></label>
+            <div class="radio-group">
+                <label>
+                    <input type="radio" name="location_type" value="0" checked> India
+                </label>
+                <label>
+                    <input type="radio" name="location_type" value="1"> Outside India
+                </label>
+            </div>
+        </div>
+
+        <div class="mobile-verify-wrapper">
+            <h4>Contact Number Verification</h4>
+            <div class="mobile-input-container">
+                <div class="country-code-wrapper disabled">
+                    <select id="country-code-select" class="country-code-select">
+                        <option value="+91" data-country="IN">🇮🇳 +91</option>
+                        <option value="+1" data-country="US">🇺🇸 +1</option>
+                        <option value="+44" data-country="GB">🇬🇧 +44</option>
+                        <option value="+61" data-country="AU">🇦🇺 +61</option>
+                        <option value="+81" data-country="JP">🇯🇵 +81</option>
+                        <option value="+49" data-country="DE">🇩🇪 +49</option>
+                        <option value="+33" data-country="FR">🇫🇷 +33</option>
+                        <option value="+86" data-country="CN">🇨🇳 +86</option>
+                        <option value="+82" data-country="KR">🇰🇷 +82</option>
+                        <option value="+65" data-country="SG">🇸🇬 +65</option>
+                    </select>
+                </div>
+                <input type="tel" id="mobile-number" name="contact" class="mobile-input" placeholder="Contact Number (10 digits)" maxlength="10">
+            </div>
+            <button type="button" id="verify-mobile-btn" class="verify-btn" disabled>Verify Mobile</button>
+            <div id="mobile-status"></div>
+        </div>
+    </div>
+
+    <div id="test-results" class="status info">
+        <strong>Current State:</strong> India selected - Country code locked to +91
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const locationRadios = document.querySelectorAll('input[name="location_type"]');
+            const countryCodeWrapper = document.querySelector('.country-code-wrapper');
+            const countryCodeSelect = document.getElementById('country-code-select');
+            const mobileInput = document.getElementById('mobile-number');
+            const verifyBtn = document.getElementById('verify-mobile-btn');
+            const mobileStatus = document.getElementById('mobile-status');
+            const testResults = document.getElementById('test-results');
+
+            function updateStatus(message, type = 'info') {
+                testResults.className = `status ${type}`;
+                testResults.innerHTML = `<strong>Current State:</strong> ${message}`;
+            }
+
+            function showMobileStatus(message, isError = false) {
+                mobileStatus.innerHTML = `<div class="status ${isError ? 'error' : 'success'}">${message}</div>`;
+            }
+
+            // Function to format mobile number based on location and country code
+            function formatMobileNumber(input) {
+                const selectedLocationElement = document.querySelector('input[name="location_type"]:checked');
+                if (!selectedLocationElement) return;
+                
+                const selectedLocation = selectedLocationElement.value;
+                let value = input.value.replace(/[^0-9]/g, '');
+                
+                if (selectedLocation === '0') { // India
+                    value = value.slice(0, 10);
+                    input.maxLength = '10';
+                } else { // Outside India
+                    value = value.slice(0, 15);
+                    input.maxLength = '15';
+                }
+                
+                input.value = value;
+                updateVerifyButton();
+            }
+
+            // Function to get full mobile number with country code
+            function getFullMobileNumber() {
+                if (!countryCodeSelect || !mobileInput) return '';
+                return countryCodeSelect.value + mobileInput.value.trim();
+            }
+
+            // Function to update verify button state
+            function updateVerifyButton() {
+                const selectedLocationElement = document.querySelector('input[name="location_type"]:checked');
+                if (!selectedLocationElement) return;
+                
+                const selectedLocation = selectedLocationElement.value;
+                const mobileNumber = mobileInput.value.trim();
+                
+                let isValidLength = false;
+                let expectedLength = '';
+                
+                if (selectedLocation === '0') { // India
+                    isValidLength = mobileNumber.length === 10;
+                    expectedLength = '10 digits';
+                } else { // Outside India
+                    isValidLength = mobileNumber.length >= 7 && mobileNumber.length <= 15;
+                    expectedLength = '7-15 digits';
+                }
+                
+                verifyBtn.disabled = !isValidLength;
+                
+                if (mobileNumber.length > 0) {
+                    const fullNumber = getFullMobileNumber();
+                    updateStatus(`${selectedLocation === '0' ? 'India' : 'Outside India'} - Full number: ${fullNumber} (${isValidLength ? 'Valid' : 'Invalid'} - needs ${expectedLength})`, isValidLength ? 'success' : 'error');
+                }
+            }
+
+            // Function to update country code state based on location selection
+            function updateCountryCodeState() {
+                const selectedLocationElement = document.querySelector('input[name="location_type"]:checked');
+                if (!selectedLocationElement) return;
+                
+                const selectedLocation = selectedLocationElement.value;
+                
+                if (selectedLocation === '0') { // India
+                    countryCodeSelect.value = '+91';
+                    countryCodeSelect.disabled = true;
+                    mobileInput.placeholder = 'Contact Number (10 digits)';
+                    countryCodeWrapper.classList.add('disabled');
+                    updateStatus('India selected - Country code locked to +91');
+                } else if (selectedLocation === '1') { // Outside India
+                    countryCodeSelect.disabled = false;
+                    mobileInput.placeholder = 'Contact Number';
+                    countryCodeWrapper.classList.remove('disabled');
+                    updateStatus('Outside India selected - Country code selectable');
+                }
+                
+                // Clear mobile input when switching
+                mobileInput.value = '';
+                updateVerifyButton();
+            }
+
+            // Handle location selection change
+            locationRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    updateCountryCodeState();
+                });
+            });
+
+            // Handle mobile input
+            mobileInput.addEventListener('input', function() {
+                formatMobileNumber(this);
+            });
+
+            // Handle country code change
+            countryCodeSelect.addEventListener('change', function() {
+                const selectedLocationElement = document.querySelector('input[name="location_type"]:checked');
+                if (!selectedLocationElement) return;
+                
+                const selectedLocation = selectedLocationElement.value;
+                if (selectedLocation === '0') { // India
+                    this.value = '+91'; // Force back to +91
+                    return;
+                }
+                
+                // Clear mobile number when changing country code
+                mobileInput.value = '';
+                updateVerifyButton();
+            });
+
+            // Handle verify button click
+            verifyBtn.addEventListener('click', function() {
+                const fullNumber = getFullMobileNumber();
+                const selectedLocation = document.querySelector('input[name="location_type"]:checked').value;
+                
+                showMobileStatus(`✓ Verification request sent for ${fullNumber} (Location: ${selectedLocation === '0' ? 'India' : 'Outside India'})`);
+                
+                // Simulate API call
+                this.textContent = 'Sending...';
+                this.disabled = true;
+                
+                setTimeout(() => {
+                    this.textContent = 'Verify Mobile';
+                    this.disabled = false;
+                    showMobileStatus(`✓ OTP sent to ${fullNumber} successfully!`);
+                }, 2000);
+            });
+
+            // Initialize
+            updateCountryCodeState();
+        });
+    </script>
+</body>
+</html>
