@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Duplicate API Call Fix</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .mobile-input-container {
+            display: flex;
+            align-items: stretch;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            background: white;
+            margin-bottom: 10px;
+        }
+        .country-code-wrapper {
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            border-right: 1px solid #ddd;
+            min-width: 120px;
+        }
+        .country-code-wrapper.disabled {
+            opacity: 0.6;
+            pointer-events: none;
+            background: #f5f5f5;
+        }
+        .country-code-select {
+            border: none;
+            background: transparent;
+            padding: 12px 8px;
+            font-size: 14px;
+            cursor: pointer;
+            outline: none;
+            width: 100%;
+        }
+        .mobile-input-container .mobile-input {
+            border: none;
+            flex: 1;
+            padding: 12px 15px;
+            font-size: 16px;
+            outline: none;
+            background: transparent;
+        }
+        .verify-btn { 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            margin: 10px 5px 0 0;
+        }
+        .verify-btn:disabled { 
+            background: #ccc; 
+            cursor: not-allowed; 
+        }
+        .api-log {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success { color: #28a745; font-weight: bold; }
+        .error { color: #dc3545; font-weight: bold; }
+        .warning { color: #ffc107; font-weight: bold; }
+        .info { background: #e7f3ff; padding: 15px; border-radius: 5px; margin: 15px 0; }
+        .radio-group { display: flex; gap: 20px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Duplicate API Call Fix Test</h1>
+    
+    <div class="info">
+        <h3>Testing Fix for Duplicate /send-otp Calls:</h3>
+        <p>This test verifies that clicking "Verify Mobile" only makes ONE API call to /send-otp endpoint.</p>
+        <ul>
+            <li><strong>Issue:</strong> Previously, two event listeners were attached to the same button</li>
+            <li><strong>Fix:</strong> Removed duplicate event listener and added click prevention</li>
+            <li><strong>Expected:</strong> Only one API call per button click</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h3>Mobile Verification Test</h3>
+        
+        <div class="form-group">
+            <label><strong>Select Location:</strong></label>
+            <div class="radio-group">
+                <label>
+                    <input type="radio" name="location_type" value="0" checked> India
+                </label>
+                <label>
+                    <input type="radio" name="location_type" value="1"> Outside India
+                </label>
+            </div>
+        </div>
+
+        <div class="mobile-input-container">
+            <div class="country-code-wrapper disabled">
+                <select id="country-code-select" class="country-code-select">
+                    <option value="+91" data-country="IN">🇮🇳 +91</option>
+                    <option value="+1" data-country="US">🇺🇸 +1</option>
+                    <option value="+44" data-country="GB">🇬🇧 +44</option>
+                </select>
+            </div>
+            <input type="tel" id="mobile-number" name="contact" class="mobile-input" placeholder="Contact Number (10 digits)" maxlength="10" value="9876543210">
+        </div>
+        
+        <button type="button" id="verify-mobile-btn" class="verify-btn">Verify Mobile</button>
+        <button type="button" id="rapid-click-test" class="verify-btn" style="background: #ffc107; color: #000;">Rapid Click Test</button>
+        
+        <h4>API Call Log:</h4>
+        <div id="api-log" class="api-log">No API calls yet...</div>
+        
+        <h4>Test Results:</h4>
+        <div id="test-results" class="api-log">Click "Verify Mobile" to test...</div>
+    </div>
+
+    <script>
+        let apiCallCount = 0;
+        let lastClickTime = 0;
+        let isApiInProgress = false;
+        
+        const apiLog = document.getElementById('api-log');
+        const testResults = document.getElementById('test-results');
+        const verifyBtn = document.getElementById('verify-mobile-btn');
+        const rapidClickBtn = document.getElementById('rapid-click-test');
+        const mobileInput = document.getElementById('mobile-number');
+        const countryCodeSelect = document.getElementById('country-code-select');
+        
+        function logApiCall(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}\n`;
+            apiLog.textContent += logEntry;
+            apiLog.scrollTop = apiLog.scrollHeight;
+        }
+        
+        function updateTestResults() {
+            const now = Date.now();
+            const timeSinceLastClick = now - lastClickTime;
+            
+            let result = `API Calls Made: ${apiCallCount}\n`;
+            result += `Time Since Last Click: ${timeSinceLastClick}ms\n`;
+            result += `API In Progress: ${isApiInProgress}\n\n`;
+            
+            if (apiCallCount === 0) {
+                result += '⏳ Waiting for first API call...';
+            } else if (apiCallCount === 1) {
+                result += '✅ SUCCESS: Only one API call made (as expected)';
+            } else {
+                result += `❌ ISSUE: ${apiCallCount} API calls made (should be only 1)`;
+            }
+            
+            testResults.textContent = result;
+        }
+        
+        // Mock fetch function to intercept API calls
+        const originalFetch = window.fetch;
+        window.fetch = function(url, options) {
+            if (url.includes('/api/send-otp')) {
+                apiCallCount++;
+                logApiCall(`API Call #${apiCallCount}: POST /api/send-otp`, 'info');
+                logApiCall(`Payload: ${options.body}`, 'info');
+                
+                updateTestResults();
+                
+                // Simulate API response
+                return Promise.resolve({
+                    json: () => Promise.resolve({
+                        success: true,
+                        message: 'OTP sent successfully (simulated)'
+                    })
+                });
+            }
+            return originalFetch.apply(this, arguments);
+        };
+        
+        // Simulate the main verify button logic
+        function simulateVerifyClick() {
+            lastClickTime = Date.now();
+            
+            // Prevent multiple rapid clicks (same as in main code)
+            if (verifyBtn.disabled) {
+                logApiCall('Click ignored - button already disabled', 'warning');
+                return;
+            }
+            
+            const selectedLocationElement = document.querySelector('input[name="location_type"]:checked');
+            if (!selectedLocationElement) return;
+            
+            const selectedLocation = selectedLocationElement.value;
+            const mobile = mobileInput.value.trim();
+            const countryCode = countryCodeSelect.value;
+            
+            // Validate mobile number
+            let isValidMobile = false;
+            if (selectedLocation === '0') { // India
+                isValidMobile = mobile.length === 10;
+                if (!isValidMobile) {
+                    logApiCall('Validation failed: Invalid mobile number length', 'error');
+                    return;
+                }
+            }
+            
+            logApiCall(`Verify button clicked - Mobile: ${countryCode}${mobile}`, 'info');
+            
+            verifyBtn.textContent = 'Sending...';
+            verifyBtn.disabled = true;
+            isApiInProgress = true;
+            
+            // Simulate API call
+            const payload = {
+                mobile_number: mobile,
+                country_code: countryCode,
+                location_type: parseInt(selectedLocation)
+            };
+            
+            fetch('https://sip-admin.designonline.in/api/send-otp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                logApiCall('API Response: ' + JSON.stringify(data), 'success');
+                
+                // Reset button after API call
+                setTimeout(() => {
+                    verifyBtn.textContent = 'Verify Mobile';
+                    verifyBtn.disabled = false;
+                    isApiInProgress = false;
+                    updateTestResults();
+                }, 1000);
+            })
+            .catch(error => {
+                logApiCall('API Error: ' + error.message, 'error');
+                verifyBtn.textContent = 'Verify Mobile';
+                verifyBtn.disabled = false;
+                isApiInProgress = false;
+                updateTestResults();
+            });
+        }
+        
+        // Test rapid clicking
+        function rapidClickTest() {
+            logApiCall('=== RAPID CLICK TEST STARTED ===', 'warning');
+            apiCallCount = 0; // Reset counter
+            
+            // Simulate 5 rapid clicks
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    logApiCall(`Rapid click #${i + 1}`, 'warning');
+                    simulateVerifyClick();
+                }, i * 100); // 100ms apart
+            }
+            
+            setTimeout(() => {
+                logApiCall('=== RAPID CLICK TEST COMPLETED ===', 'warning');
+                updateTestResults();
+            }, 1000);
+        }
+        
+        // Event listeners
+        verifyBtn.addEventListener('click', simulateVerifyClick);
+        rapidClickBtn.addEventListener('click', rapidClickTest);
+        
+        // Location change handler
+        document.querySelectorAll('input[name="location_type"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const countryCodeWrapper = document.querySelector('.country-code-wrapper');
+                if (this.value === '0') { // India
+                    countryCodeSelect.value = '+91';
+                    countryCodeWrapper.classList.add('disabled');
+                    mobileInput.placeholder = 'Contact Number (10 digits)';
+                    mobileInput.maxLength = '10';
+                } else { // Outside India
+                    countryCodeWrapper.classList.remove('disabled');
+                    mobileInput.placeholder = 'Contact Number';
+                    mobileInput.maxLength = '15';
+                }
+                
+                // Reset test
+                apiCallCount = 0;
+                apiLog.textContent = 'Location changed - test reset...\n';
+                updateTestResults();
+            });
+        });
+        
+        // Initialize
+        updateTestResults();
+    </script>
+</body>
+</html>

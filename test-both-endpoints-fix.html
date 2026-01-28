@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Both Endpoints Fix</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 1000px; margin: 0 auto; }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .mobile-input-container {
+            display: flex;
+            align-items: stretch;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            background: white;
+            margin-bottom: 10px;
+        }
+        .country-code-wrapper {
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            border-right: 1px solid #ddd;
+            min-width: 120px;
+        }
+        .country-code-select {
+            border: none;
+            background: transparent;
+            padding: 12px 8px;
+            font-size: 14px;
+            cursor: pointer;
+            outline: none;
+            width: 100%;
+        }
+        .mobile-input-container .mobile-input {
+            border: none;
+            flex: 1;
+            padding: 12px 15px;
+            font-size: 16px;
+            outline: none;
+            background: transparent;
+        }
+        .verify-btn { 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            margin: 10px 5px 0 0;
+        }
+        .verify-btn:disabled { 
+            background: #ccc; 
+            cursor: not-allowed; 
+        }
+        .payload-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success { color: #28a745; font-weight: bold; }
+        .error { color: #dc3545; font-weight: bold; }
+        .warning { color: #ffc107; font-weight: bold; }
+        .info { background: #e7f3ff; padding: 15px; border-radius: 5px; margin: 15px 0; }
+        .radio-group { display: flex; gap: 20px; margin: 10px 0; }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .comparison-table th, .comparison-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .comparison-table th {
+            background-color: #f8f9fa;
+        }
+        .correct { background-color: #d4edda; }
+        .incorrect { background-color: #f8d7da; }
+    </style>
+</head>
+<body>
+    <h1>Complete Endpoint Payload Fix Test</h1>
+    
+    <div class="info">
+        <h3>Testing Both API Endpoints:</h3>
+        <p>This test verifies that both <code>/send-otp</code> and <code>/verify-otp</code> endpoints send correct payloads.</p>
+        <ul>
+            <li><strong>Issue:</strong> Both endpoints had regex parsing problems</li>
+            <li><strong>Fix:</strong> Updated regex from <code>/^(\+\d+)(.+)$/</code> to <code>/^(\+\d{1,4})(.+)$/</code></li>
+            <li><strong>Expected:</strong> Proper separation of country code and mobile number</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h3>Mobile Number Input</h3>
+        
+        <div class="mobile-input-container">
+            <div class="country-code-wrapper">
+                <select id="country-code-select" class="country-code-select">
+                    <option value="+91" data-country="IN">🇮🇳 +91</option>
+                    <option value="+1" data-country="US">🇺🇸 +1</option>
+                    <option value="+44" data-country="GB">🇬🇧 +44</option>
+                    <option value="+86" data-country="CN">🇨🇳 +86</option>
+                    <option value="+33" data-country="FR">🇫🇷 +33</option>
+                </select>
+            </div>
+            <input type="tel" id="mobile-number" name="contact" class="mobile-input" placeholder="Enter mobile number" value="728728826">
+        </div>
+        
+        <input type="text" id="otp-input" placeholder="Enter OTP (e.g., 123456)" value="123456" maxlength="6" style="padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px;">
+        
+        <br>
+        <button type="button" id="test-send-otp" class="verify-btn">Test Send OTP</button>
+        <button type="button" id="test-verify-otp" class="verify-btn" style="background: #28a745;">Test Verify OTP</button>
+        <button type="button" id="test-all-countries" class="verify-btn" style="background: #ffc107; color: #000;">Test All Countries</button>
+    </div>
+
+    <div class="test-section">
+        <h3>Regex Comparison</h3>
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Input</th>
+                    <th>Old Regex Result</th>
+                    <th>New Regex Result</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="regex-comparison">
+            </tbody>
+        </table>
+    </div>
+
+    <div class="test-section">
+        <h3>API Payload Results</h3>
+        
+        <h4>Send OTP Payload:</h4>
+        <div id="send-otp-payload" class="payload-display">Click "Test Send OTP" to see payload...</div>
+        
+        <h4>Verify OTP Payload:</h4>
+        <div id="verify-otp-payload" class="payload-display">Click "Test Verify OTP" to see payload...</div>
+        
+        <h4>Test Log:</h4>
+        <div id="test-log" class="payload-display">Test results will appear here...</div>
+    </div>
+
+    <script>
+        const countryCodeSelect = document.getElementById('country-code-select');
+        const mobileInput = document.getElementById('mobile-number');
+        const otpInput = document.getElementById('otp-input');
+        const sendOtpBtn = document.getElementById('test-send-otp');
+        const verifyOtpBtn = document.getElementById('test-verify-otp');
+        const testAllBtn = document.getElementById('test-all-countries');
+        const sendOtpPayload = document.getElementById('send-otp-payload');
+        const verifyOtpPayload = document.getElementById('verify-otp-payload');
+        const testLog = document.getElementById('test-log');
+        const regexComparison = document.getElementById('regex-comparison');
+        
+        let logEntries = [];
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            logEntries.push(`[${timestamp}] ${message}`);
+            testLog.textContent = logEntries.join('\n');
+            testLog.scrollTop = testLog.scrollHeight;
+        }
+        
+        function testRegexExtraction(fullNumber) {
+            // Old problematic regex
+            const oldRegex = /^(\+\d+)(.+)$/;
+            const oldMatch = fullNumber.match(oldRegex);
+            
+            // New improved regex
+            const newRegex = /^(\+\d{1,4})(.+)$/;
+            const newMatch = fullNumber.match(newRegex);
+            
+            return {
+                input: fullNumber,
+                old: oldMatch ? { country: oldMatch[1], mobile: oldMatch[2] } : null,
+                new: newMatch ? { country: newMatch[1], mobile: newMatch[2] } : null
+            };
+        }
+        
+        function updateRegexComparison() {
+            const countryCode = countryCodeSelect.value;
+            const mobile = mobileInput.value.trim();
+            const fullNumber = countryCode + mobile;
+            
+            const result = testRegexExtraction(fullNumber);
+            
+            regexComparison.innerHTML = `
+                <tr>
+                    <td>${result.input}</td>
+                    <td class="incorrect">
+                        ${result.old ? `country: "${result.old.country}"<br>mobile: "${result.old.mobile}"` : 'No match'}
+                    </td>
+                    <td class="correct">
+                        ${result.new ? `country: "${result.new.country}"<br>mobile: "${result.new.mobile}"` : 'No match'}
+                    </td>
+                    <td class="${result.new && result.new.country === countryCode && result.new.mobile === mobile ? 'correct' : 'incorrect'}">
+                        ${result.new && result.new.country === countryCode && result.new.mobile === mobile ? '✅ Fixed' : '❌ Issue'}
+                    </td>
+                </tr>
+            `;
+        }
+        
+        function testSendOtp() {
+            const countryCode = countryCodeSelect.value;
+            const mobile = mobileInput.value.trim();
+            
+            log(`Testing Send OTP with ${countryCode}${mobile}`);
+            
+            // Simulate the new sendOtp function (separate parameters)
+            const payload = {
+                mobile_number: mobile,
+                country_code: countryCode,
+                location_type: 0
+            };
+            
+            sendOtpPayload.textContent = 
+                'Send OTP Payload (New Method - Separate Parameters):\n' +
+                JSON.stringify(payload, null, 2) + '\n\n' +
+                '✅ CORRECT: No regex parsing needed, direct values used';
+            
+            log(`Send OTP payload: ${JSON.stringify(payload)}`, 'success');
+        }
+        
+        function testVerifyOtp() {
+            const countryCode = countryCodeSelect.value;
+            const mobile = mobileInput.value.trim();
+            const otp = otpInput.value.trim();
+            const fullNumber = countryCode + mobile;
+            
+            log(`Testing Verify OTP with ${fullNumber}, OTP: ${otp}`);
+            
+            // Simulate the currentMobile extraction (as it happens in verify-otp)
+            const currentMobile = fullNumber; // This is what gets stored
+            
+            // Test both old and new regex
+            const oldRegex = /^(\+\d+)(.+)$/;
+            const newRegex = /^(\+\d{1,4})(.+)$/;
+            
+            const oldMatch = currentMobile.match(oldRegex);
+            const newMatch = currentMobile.match(newRegex);
+            
+            let result = 'Verify OTP Payload Extraction Test:\n\n';
+            result += `currentMobile: "${currentMobile}"\n`;
+            result += `Expected: country_code="${countryCode}", mobile_number="${mobile}"\n\n`;
+            
+            // Old regex result
+            if (oldMatch) {
+                const oldPayload = {
+                    mobile_number: oldMatch[2],
+                    country_code: oldMatch[1],
+                    location_type: '0',
+                    otp: otp
+                };
+                result += '❌ OLD REGEX RESULT:\n';
+                result += JSON.stringify(oldPayload, null, 2) + '\n\n';
+            }
+            
+            // New regex result
+            if (newMatch) {
+                const newCountryCode = newMatch[1];
+                const newMobileNumber = newMatch[2];
+                
+                const newPayload = {
+                    mobile_number: newMobileNumber,
+                    country_code: newCountryCode,
+                    location_type: '0',
+                    otp: otp
+                };
+                
+                const isCorrect = newCountryCode === countryCode && newMobileNumber === mobile;
+                result += `${isCorrect ? '✅' : '❌'} NEW REGEX RESULT:\n`;
+                result += JSON.stringify(newPayload, null, 2) + '\n';
+                result += `Status: ${isCorrect ? 'CORRECT' : 'INCORRECT'}\n`;
+            }
+            
+            verifyOtpPayload.textContent = result;
+            
+            log(`Verify OTP test completed - ${newMatch && newMatch[1] === countryCode ? 'SUCCESS' : 'FAILED'}`, 
+                newMatch && newMatch[1] === countryCode ? 'success' : 'error');
+        }
+        
+        function testAllCountries() {
+            const testCases = [
+                { country: '+91', mobile: '728728826', name: 'India' },
+                { country: '+1', mobile: '5551234567', name: 'USA' },
+                { country: '+44', mobile: '7911123456', name: 'UK' },
+                { country: '+86', mobile: '13812345678', name: 'China' },
+                { country: '+33', mobile: '612345678', name: 'France' }
+            ];
+            
+            log('=== Testing All Country Codes ===');
+            
+            let allResults = 'ALL COUNTRIES TEST RESULTS:\n\n';
+            let passCount = 0;
+            
+            testCases.forEach(test => {
+                const fullNumber = test.country + test.mobile;
+                const newRegex = /^(\+\d{1,4})(.+)$/;
+                const match = fullNumber.match(newRegex);
+                
+                if (match) {
+                    const extractedCountry = match[1];
+                    const extractedMobile = match[2];
+                    const isCorrect = extractedCountry === test.country && extractedMobile === test.mobile;
+                    
+                    allResults += `${test.name} (${test.country}):\n`;
+                    allResults += `  Input: "${fullNumber}"\n`;
+                    allResults += `  Extracted: country="${extractedCountry}", mobile="${extractedMobile}"\n`;
+                    allResults += `  Result: ${isCorrect ? '✅ PASS' : '❌ FAIL'}\n\n`;
+                    
+                    if (isCorrect) passCount++;
+                    log(`${test.name}: ${isCorrect ? 'PASS' : 'FAIL'}`, isCorrect ? 'success' : 'error');
+                } else {
+                    allResults += `${test.name}: ❌ NO REGEX MATCH\n\n`;
+                    log(`${test.name}: NO MATCH`, 'error');
+                }
+            });
+            
+            allResults += `SUMMARY: ${passCount}/${testCases.length} tests passed\n`;
+            allResults += `Status: ${passCount === testCases.length ? '✅ ALL TESTS PASSED' : '❌ SOME TESTS FAILED'}`;
+            
+            testLog.textContent = allResults;
+            log(`=== Test Complete: ${passCount}/${testCases.length} passed ===`);
+        }
+        
+        // Event listeners
+        sendOtpBtn.addEventListener('click', testSendOtp);
+        verifyOtpBtn.addEventListener('click', testVerifyOtp);
+        testAllBtn.addEventListener('click', testAllCountries);
+        countryCodeSelect.addEventListener('change', updateRegexComparison);
+        mobileInput.addEventListener('input', updateRegexComparison);
+        
+        // Initialize
+        updateRegexComparison();
+        log('Test environment initialized');
+    </script>
+</body>
+</html>

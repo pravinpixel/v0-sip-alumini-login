@@ -2209,17 +2209,6 @@ if (levelTrigger && levelDropdown) {
         }
     }
     
-    // Modified verify button functionality to handle both mobile and email OTP
-    if (verifyMobileBtn) {
-        verifyMobileBtn.addEventListener('click', function() {
-
-            if (currentVerificationMode === 'mobile') {
-                // Existing mobile OTP logic
-                sendMobileOTP();
-            }
-        });
-    }
-    
     // Email verify button functionality
     if (verifyEmailBtn) {
         verifyEmailBtn.addEventListener('click', function() {
@@ -2330,99 +2319,6 @@ if (levelTrigger && levelDropdown) {
         });
     }
     
-    // Function to send Mobile OTP (existing logic - you may need to extract this from existing code)
-    function sendMobileOTP() {
-        const mobileInput = document.getElementById('mobile-number');
-        const mobile = mobileInput ? mobileInput.value.trim() : '';
-        
-        if (!mobile || mobile.length !== 10) {
-            showToast('Please enter a valid 10-digit mobile number', 'error');
-            return;
-        }
-        
-        // Update UI for mobile OTP
-        if (verifyMobileBtn) {
-            verifyMobileBtn.textContent = 'Sending...';
-            verifyMobileBtn.disabled = true;
-        }
-        
-        // Make API call for mobile OTP (existing logic)
-        fetch('https://sip-admin.designonline.in/api/send-otp', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                mobile_number: mobile,
-                location_type: 0
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showToast('Mobile OTP sent successfully', 'success');
-                
-                // Reset mobile verify button
-                if (verifyMobileBtn) {
-                    verifyMobileBtn.textContent = 'Verify Mobile';
-                    verifyMobileBtn.disabled = false;
-                }
-                
-                // Show OTP input
-                otpInput.classList.remove('otp-input-field');
-                otpInput.classList.add('otp-input-visible');
-                otpInput.style.display = 'block';
-                otpInput.focus();
-                
-                // Show verify OTP button
-                if (verifyOtpBtn) {
-                    
-                    verifyOtpBtn.style.display = 'inline-block';
-                    verifyOtpBtn.disabled = false; // Enable by default
-                }
-                
-                // Hide verify mobile button
-                if (verifyMobileBtn) {
-                    verifyMobileBtn.classList.add('d-none');
-                }
-                
-                // Show action buttons
-                if (editMobileBtn) {
-                    editMobileBtn.classList.add('show');
-                    editMobileBtn.style.display = 'inline-block';
-                }
-                if (cancelMobileBtn) {
-                    cancelMobileBtn.classList.add('show');
-                    cancelMobileBtn.style.display = 'inline-block';
-                }
-                
-                // Show mobile action buttons container
-                const mobileActionButtons = document.querySelector('.mobile-action-buttons');
-                if (mobileActionButtons) {
-                    mobileActionButtons.style.display = 'flex';
-                };
-
-                // Start OTP timer
-                startOtpTimer();
-                
-            } else {
-                showToast(data.message || 'Failed to send mobile OTP', 'error');
-                if (verifyMobileBtn) {
-                    verifyMobileBtn.textContent = 'Verify Mobile';
-                    verifyMobileBtn.disabled = false;
-                }
-            }
-        })
-        .catch(error => {
-            showToast('Failed to send mobile OTP. Please try again.', 'error');
-            if (verifyMobileBtn) {
-                verifyMobileBtn.textContent = 'Verify Mobile';
-                verifyMobileBtn.disabled = false;
-            }
-        });
-    }
-    
-
     // Field Validation - Year of Completion
     const completionYearInput = document.getElementById('completion_year');
     const completionYearError = document.getElementById('completion_year-error');
@@ -2723,7 +2619,33 @@ if (levelTrigger && levelDropdown) {
                 
                 // Add click handler for resend
                 document.getElementById('resend-otp-link').addEventListener('click', function() {
-                    sendOtp(currentMobile);
+                    // Extract country code and mobile number from currentMobile using proper country code lookup
+                    function extractCountryCodeAndMobile(fullNumber) {
+                        // Common country codes (sorted by length, longest first)
+                        const countryCodes = [
+                            '+1242', '+1246', '+1264', '+1268', '+1284', '+1340', '+1345', '+1441', '+1473', '+1649', '+1664', '+1670', '+1671', '+1684', '+1721', '+1758', '+1767', '+1784', '+1787', '+1809', '+1829', '+1849', '+1868', '+1869', '+1876', '+1939',
+                            '+358', '+370', '+371', '+372', '+373', '+374', '+375', '+376', '+377', '+378', '+380', '+381', '+382', '+383', '+385', '+386', '+387', '+389', '+420', '+421', '+423', '+590', '+591', '+592', '+593', '+594', '+595', '+596', '+597', '+598', '+599', '+670', '+672', '+673', '+674', '+675', '+676', '+677', '+678', '+679', '+680', '+681', '+682', '+683', '+684', '+685', '+686', '+687', '+688', '+689', '+690', '+691', '+692', '+850', '+852', '+853', '+855', '+856', '+880', '+886', '+960', '+961', '+962', '+963', '+964', '+965', '+966', '+967', '+968', '+970', '+971', '+972', '+973', '+974', '+975', '+976', '+977', '+992', '+993', '+994', '+995', '+996', '+998',
+                            '+93', '+94', '+95', '+98', '+20', '+27', '+30', '+31', '+32', '+33', '+34', '+36', '+39', '+40', '+41', '+43', '+44', '+45', '+46', '+47', '+48', '+49', '+51', '+52', '+53', '+54', '+55', '+56', '+57', '+58', '+60', '+61', '+62', '+63', '+64', '+65', '+66', '+81', '+82', '+84', '+86', '+90', '+91', '+92',
+                            '+1', '+7'
+                        ];
+                        
+                        for (const code of countryCodes) {
+                            if (fullNumber.startsWith(code)) {
+                                return {
+                                    countryCode: code,
+                                    mobileNumber: fullNumber.substring(code.length)
+                                };
+                            }
+                        }
+                        
+                        return {
+                            countryCode: '+91',
+                            mobileNumber: fullNumber.replace(/^\+91/, '')
+                        };
+                    }
+                    
+                    const extracted = extractCountryCodeAndMobile(currentMobile);
+                    sendOtp(extracted.mobileNumber, extracted.countryCode);
                 });
             }
         }, 1000);
@@ -2753,7 +2675,7 @@ if (levelTrigger && levelDropdown) {
         }, 1000);
     }
     
-    function sendOtp(mobile) {
+    function sendOtp(mobileNumber, countryCode) {
         // Disable resend link if exists
         const resendLink = document.getElementById('resend-otp-link');
         if (resendLink) {
@@ -2767,7 +2689,8 @@ if (levelTrigger && levelDropdown) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                mobile_number: mobile,
+                mobile_number: mobileNumber, // Send mobile number without country code
+                country_code: countryCode, // Send country code separately
                 location_type: 0
             })
         })
@@ -2926,6 +2849,11 @@ if (levelTrigger && levelDropdown) {
         
         // Send OTP (Updated to handle both mobile and email with country code support)
         verifyBtn.addEventListener('click', function() {
+            // Prevent multiple rapid clicks
+            if (verifyBtn.disabled) {
+                return;
+            }
+            
             const selectedLocationElement = document.querySelector('input[name="location_type"]:checked');
             if (!selectedLocationElement) return;
             
@@ -2960,7 +2888,7 @@ if (levelTrigger && levelDropdown) {
             // Hide cancel button while sending OTP
             cancelMobileBtn.classList.remove('show');
             
-            sendOtp(fullMobileNumber);
+            sendOtp(mobile, countryCode);
         });
     }
     
@@ -3200,8 +3128,40 @@ if (levelTrigger && levelDropdown) {
             
             // Send different data based on verification mode
             if (currentVerificationMode === 'mobile') {
-                // India: Send mobile number
-                formData.append('mobile_number', currentMobile);
+                // India: Send mobile number and country code separately
+                // Use proper country code extraction instead of regex
+                function extractCountryCodeAndMobile(fullNumber) {
+                    // Common country codes (sorted by length, longest first to avoid partial matches)
+                    const countryCodes = [
+                        '+1242', '+1246', '+1264', '+1268', '+1284', '+1340', '+1345', '+1441', '+1473', '+1649', '+1664', '+1670', '+1671', '+1684', '+1721', '+1758', '+1767', '+1784', '+1787', '+1809', '+1829', '+1849', '+1868', '+1869', '+1876', '+1939',
+                        '+358', '+370', '+371', '+372', '+373', '+374', '+375', '+376', '+377', '+378', '+380', '+381', '+382', '+383', '+385', '+386', '+387', '+389', '+420', '+421', '+423', '+590', '+591', '+592', '+593', '+594', '+595', '+596', '+597', '+598', '+599', '+670', '+672', '+673', '+674', '+675', '+676', '+677', '+678', '+679', '+680', '+681', '+682', '+683', '+684', '+685', '+686', '+687', '+688', '+689', '+690', '+691', '+692', '+850', '+852', '+853', '+855', '+856', '+880', '+886', '+960', '+961', '+962', '+963', '+964', '+965', '+966', '+967', '+968', '+970', '+971', '+972', '+973', '+974', '+975', '+976', '+977', '+992', '+993', '+994', '+995', '+996', '+998',
+                        '+93', '+94', '+95', '+98', '+20', '+27', '+30', '+31', '+32', '+33', '+34', '+36', '+39', '+40', '+41', '+43', '+44', '+45', '+46', '+47', '+48', '+49', '+51', '+52', '+53', '+54', '+55', '+56', '+57', '+58', '+60', '+61', '+62', '+63', '+64', '+65', '+66', '+81', '+82', '+84', '+86', '+90', '+91', '+92',
+                        '+1', '+7'
+                    ];
+                    
+                    // Find the matching country code
+                    for (const code of countryCodes) {
+                        if (fullNumber.startsWith(code)) {
+                            return {
+                                countryCode: code,
+                                mobileNumber: fullNumber.substring(code.length)
+                            };
+                        }
+                    }
+                    
+                    // Fallback: assume +91 if no match found
+                    return {
+                        countryCode: '+91',
+                        mobileNumber: fullNumber.replace(/^\+91/, '')
+                    };
+                }
+                
+                const extracted = extractCountryCodeAndMobile(currentMobile);
+                const countryCode = extracted.countryCode;
+                const mobileNumber = extracted.mobileNumber;
+                
+                formData.append('mobile_number', mobileNumber); // Send mobile number without country code
+                formData.append('country_code', countryCode); // Send country code separately
                 formData.append('location_type', '0');
             } else if (currentVerificationMode === 'email') {
                 // Outside India: Send email
@@ -3560,14 +3520,14 @@ if (levelTrigger && levelDropdown) {
             year_of_completion: parseInt(yearOfCompletion),
             state_id: parseInt(stateId),
             email: email || "vijin1697@gmail.com",
-            mobile_number: mobileNumber,
+            mobile_number: mobileNumber, // This now contains only the mobile number without country code
+            country_code: document.getElementById('country-code-select') ? document.getElementById('country-code-select').value : (locationType === 0 ? "+91" : "+1"), // Get actual selected country code
             occupation: occupation,
             current_location: currentLocation,
             level_completed: levelCompleted,
             center_id: parseInt(centerLocationId),
             pincode_id: parseInt(pincodeId),
-            location_type: locationType,
-            country_code: locationType === 0 ? "+91" : "+1"
+            location_type: locationType
         };
 
         // Handle city or other_city

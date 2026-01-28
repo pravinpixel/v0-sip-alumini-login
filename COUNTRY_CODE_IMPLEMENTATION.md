@@ -109,8 +109,15 @@ Enhanced the alumni registration form with radio button option (India / Outside 
 
 ### Mobile OTP (Updated):
 - **Endpoint**: `https://sip-admin.designonline.in/api/send-otp`
-- **Parameter**: `mobile_number` now includes country code (e.g., "+919876543210")
+- **Parameters**: 
+  - `mobile_number`: Mobile number without country code (e.g., "9876543210")
+  - `country_code`: Country code separately (e.g., "+91")
+  - `location_type`: 0 for India, 1 for Outside India
 - **Verification**: `https://sip-admin.designonline.in/api/verify-otp`
+  - `mobile_number`: Mobile number without country code
+  - `country_code`: Country code separately
+  - `otp`: OTP code
+  - `location_type`: 0 for India, 1 for Outside India
 
 ### Email OTP (Ready for Integration):
 - **Send**: `https://sip-admin.designonline.in/api/send-email-otp`
@@ -120,10 +127,10 @@ Enhanced the alumni registration form with radio button option (India / Outside 
 ### Form Submission (Updated):
 - **Endpoint**: `https://sip-admin.designonline.in/api/register`
 - **New Fields**:
-  - `location`: "india" or "outside"
+  - `location_type`: 0 for India, 1 for Outside India
   - `country_code`: Selected country code (e.g., "+91", "+1", "+44")
-  - `mobile_number`: Mobile number without country code
-  - Full mobile number sent to OTP APIs as country_code + mobile_number
+  - `mobile_number`: Mobile number without country code (e.g., "9876543210")
+  - Full mobile number sent to OTP APIs as separate country_code + mobile_number fields
 
 ## User Experience Enhancements
 
