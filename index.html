@@ -546,7 +546,7 @@
                                         <option value="+507" data-country="PA">🇵🇦 +507</option>
                                     </select>
                                 </div>
-                                <input type="tel" id="mobile-number" name="contact" class="mobile-input" placeholder="Contact Number (10 digits)" oninput="formatMobileNumber(this)" maxlength="15">
+                                <input type="tel" id="mobile-number" name="contact" class="mobile-input" placeholder="Contact Number" oninput="formatMobileNumber(this)" maxlength="15">
                             </div>
                             <button type="button" id="verify-mobile-btn" class="verify-btn" disabled>Verify</button>
                             <span id="verification-status" class="verify-status"></span>
@@ -1988,7 +1988,7 @@ if (levelTrigger && levelDropdown) {
             }
             
             if (mobileInput) {
-                mobileInput.placeholder = 'Contact Number (10 digits)';
+                mobileInput.placeholder = 'Contact Number';
                 mobileInput.maxLength = '10';
             }
             
