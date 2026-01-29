@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Toast Validation - Step 1 to Step 2</title>
+</head>
+<body>
+    <h2>✅ Toast Validation Implementation Complete</h2>
+    
+    <h3>🎯 Current Behavior</h3>
+    <ul>
+        <li><strong>Next Button Always Enabled</strong> - Users can always click it</li>
+        <li><strong>Toast Validation Messages</strong> - Shows individual validation errors as toast notifications</li>
+        <li><strong>Sequential Validation</strong> - Shows first error encountered, user fixes it, then next error</li>
+        <li><strong>Immediate Feedback</strong> - Toast appears instantly when Next is clicked</li>
+        <li><strong>Non-blocking UI</strong> - User can continue interacting while toast is visible</li>
+    </ul>
+    
+    <h3>📋 Validation Order</h3>
+    <ol>
+        <li>Location Type (India/Outside India)</li>
+        <li>Full Name (format and length validation)</li>
+        <li>Year of Completion (4-digit, valid range)</li>
+        <li>State Selection</li>
+        <li>City Selection (including "Others" validation)</li>
+        <li>Pincode Selection</li>
+        <li>Center Location (including "Others" validation)</li>
+        <li>Email Address (format validation)</li>
+        <li>Email Verification (Outside India only)</li>
+        <li>Mobile Number (length based on location)</li>
+        <li>Mobile Verification (India only)</li>
+    </ol>
+    
+    <h3>🌍 Location-Specific Validation</h3>
+    
+    <h4>India (location_type = 0):</h4>
+    <ul>
+        <li>Email: Format validation only</li>
+        <li>Mobile: 10-digit + OTP verification required</li>
+        <li>Country Code: Locked to +91</li>
+    </ul>
+    
+    <h4>Outside India (location_type = 1):</h4>
+    <ul>
+        <li>Email: Format validation + OTP verification required</li>
+        <li>Mobile: 7-15 digits (no verification required)</li>
+        <li>Country Code: Selectable from dropdown</li>
+    </ul>
+    
+    <h3>🧪 Test Scenarios</h3>
+    <ol>
+        <li><strong>Empty Form</strong> - Click Next → "Please select your location"</li>
+        <li><strong>No Name</strong> - Select location, click Next → "Please enter your full name"</li>
+        <li><strong>Invalid Name</strong> - Enter "123", click Next → "Please enter a valid name"</li>
+        <li><strong>No Year</strong> - Fill name, click Next → "Please enter your year of completion"</li>
+        <li><strong>Invalid Year</strong> - Enter "abc", click Next → "Please enter a valid 4-digit year"</li>
+        <li><strong>Future Year</strong> - Enter "2030", click Next → "Year cannot be greater than 2026"</li>
+        <li><strong>Continue Pattern</strong> - Each field validated in sequence</li>
+        <li><strong>Complete Form</strong> - All fields valid → Proceeds to Step 2</li>
+    </ol>
+    
+    <h3>✨ User Experience</h3>
+    <p>Users get immediate, specific feedback about what needs to be fixed. The sequential validation approach guides them through completing the form step by step, ensuring they don't miss any required fields while maintaining a smooth, non-intrusive experience.</p>
+</body>
+</html>

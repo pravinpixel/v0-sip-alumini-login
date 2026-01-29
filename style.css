@@ -3125,7 +3125,7 @@ City Other Autocomplete */
     background: transparent;
     padding: 12px 8px;
     font-size: 14px;
-     height: 54px;
+    height: 54px;
     font-family: 'Montserrat', sans-serif;
     cursor: pointer;
     outline: none;
@@ -3168,12 +3168,12 @@ City Other Autocomplete */
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .mobile-input-container {
-        flex-direction: column;
+        flex-direction: row;
     }
 
     .country-code-wrapper {
         border-right: none;
-        border-bottom: 1px solid #ddd;
+        /* border-bottom: 1px solid #ddd; */
         min-width: auto;
     }
 

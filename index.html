@@ -3287,7 +3287,11 @@ if (levelTrigger && levelDropdown) {
     if (nextStepBtn && prevStepBtn) {
         nextStepBtn.addEventListener('click', function() {
             // Get location type first
-            const locationType = document.querySelector('[name="location_type"]:checked').value;
+            const locationType = document.querySelector('[name="location_type"]:checked')?.value;
+            if (!locationType) {
+                showToast('Please select your location (India or Outside India)', 'error');
+                return;
+            }
             
             // Validate step 1 fields before proceeding
             const fullName = document.querySelector('[name="name"]').value.trim();
@@ -3295,10 +3299,15 @@ if (levelTrigger && levelDropdown) {
             const stateId = document.querySelector('#state').value;
             const cityValue = document.querySelector('[name="city"]').value;
             const cityOther = document.querySelector('[name="city_other"]').value.trim();
+            const pincodeId = document.querySelector('#pincode').value;
+            const centerLocationId = document.querySelector('#center_location').value;
+            const centerLocationOther = document.querySelector('#center_location_other').value.trim();
             const mobileNumber = document.querySelector('[name="contact"]').value.trim();
+            const mobileVerified = document.querySelector('#mobile-verified');
             
             // Get email based on location type
             let email = '';
+            let emailVerified = false;
             if (locationType === '0') {
                 // India: Get email from regular email input
                 const regularEmailInput = document.querySelector('.regular-email-input');
@@ -3307,81 +3316,127 @@ if (levelTrigger && levelDropdown) {
                 // Outside India: Get email from email verification wrapper
                 const emailInputInWrapper = document.querySelector('.email-input');
                 email = emailInputInWrapper ? emailInputInWrapper.value.trim() : '';
+                const emailStatus = document.querySelector('#email-verification-status');
+                emailVerified = emailStatus && emailStatus.textContent.includes('Verified');
             }
             
             // Validate step 1 fields
-            // if (!fullName) {
-            //     showToast('Please enter your full name', 'error');
-            //     return;
-            // }
+            if (!fullName) {
+                showToast('Please enter your full name', 'error');
+                return;
+            }
             
-            // const nameRegex = /^[A-Za-z\s'.-]+$/;
-            // if (!nameRegex.test(fullName) || fullName.length < 2) {
-            //     showToast('Please enter a valid name (letters and spaces only, minimum 2 characters)', 'error');
-            //     return;
-            // }
+            const nameRegex = /^[A-Za-z\s'.-]+$/;
+            if (!nameRegex.test(fullName) || fullName.length < 2) {
+                showToast('Please enter a valid name (letters and spaces only, minimum 2 characters)', 'error');
+                return;
+            }
             
-            // if (!yearOfCompletion || yearOfCompletion.length !== 4) {
-            //     showToast('Please enter a valid 4-digit year of completion', 'error');
-            //     return;
-            // }
+            if (!yearOfCompletion || yearOfCompletion.length !== 4) {
+                showToast('Please enter a valid 4-digit year of completion', 'error');
+                return;
+            }
             
-            // const currentYear = new Date().getFullYear();
-            // const yearValue = parseInt(yearOfCompletion);
-            // if (yearValue > currentYear) {
-            //     showToast(`Year of completion cannot be greater than ${currentYear}`, 'error');
-            //     return;
-            // }
+            const currentYear = new Date().getFullYear();
+            const yearValue = parseInt(yearOfCompletion);
+            if (yearValue > currentYear) {
+                showToast(`Year of completion cannot be greater than ${currentYear}`, 'error');
+                return;
+            }
             
-            // if (yearValue < 1950) {
-            //     showToast('Year of completion must be 1950 or later', 'error');
-            //     return;
-            // }
+            if (yearValue < 1950) {
+                showToast('Year of completion must be 1950 or later', 'error');
+                return;
+            }
             
-            // if (!stateId) {
-            //     showToast('Please select a state', 'error');
-            //     return;
-            // }
+            if (!stateId) {
+                showToast('Please select a state', 'error');
+                return;
+            }
             
-            // if (!cityValue) {
-            //     showToast('Please select a city', 'error');
-            //     return;
-            // }
+            if (!cityValue) {
+                showToast('Please select a city', 'error');
+                return;
+            }
             
-            // if (!email) {
-            //     showToast('Please enter your email address', 'error');
-            //     return;
-            // }
+            // If city is "others", validate city_other
+            if (cityValue === 'others') {
+                if (!cityOther) {
+                    showToast('Please enter your city name', 'error');
+                    return;
+                }
+                const cityRegex = /^[A-Za-z\s'.-]+$/;
+                if (!cityRegex.test(cityOther) || cityOther.length < 2) {
+                    showToast('Please enter a valid city name (letters and spaces only)', 'error');
+                    return;
+                }
+            }
             
-            // const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]\.[a-zA-Z]{2,}$/;
-            // if (!emailRegex.test(email)) {
-            //     showToast('Please enter a valid email address (e.g., user@example.com)', 'error');
-            //     return;
-            // }
+            if (!pincodeId) {
+                showToast('Please select a pincode', 'error');
+                return;
+            }
             
-            // if (!mobileNumber || mobileNumber.length !== 10) {
-            //     showToast('Please enter a valid 10-digit mobile number', 'error');
-            //     return;
-            // }
+            if (!centerLocationId) {
+                showToast('Please select a center location', 'error');
+                return;
+            }
             
-            // if (mobileVerified.value !== '1') {
-            //     showToast('Please verify your mobile number before proceeding', 'error');
-            //     return;
-            // }
+            // If center location is "others", validate center_location_other
+            if (centerLocationId === 'others') {
+                if (!centerLocationOther) {
+                    showToast('Please enter your center location', 'error');
+                    return;
+                }
+                const centerRegex = /^[A-Za-z\s'.-]+$/;
+                if (!centerRegex.test(centerLocationOther) || centerLocationOther.length < 2) {
+                    showToast('Please enter a valid center location (letters and spaces only)', 'error');
+                    return;
+                }
+            }
             
-            // // If city is "others", validate city_other
-            // if (cityValue === 'others' && !cityOther) {
-            //     showToast('Please enter your city name', 'error');
-            //     return;
-            // }
+            if (!email) {
+                showToast('Please enter your email address', 'error');
+                return;
+            }
             
-            // if (cityValue === 'others' && cityOther) {
-            //     const cityRegex = /^[A-Za-z\s'.-]+$/;
-            //     if (!cityRegex.test(cityOther) || cityOther.length < 2) {
-            //         showToast('Please enter a valid city name (letters and spaces only)', 'error');
-            //         return;
-            //     }
-            // }
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(email)) {
+                showToast('Please enter a valid email address (e.g., user@example.com)', 'error');
+                return;
+            }
+            
+            // For Outside India, check email verification
+            if (locationType === '1' && !emailVerified) {
+                showToast('Please verify your email address before proceeding', 'error');
+                return;
+            }
+            
+            if (!mobileNumber) {
+                showToast('Please enter your mobile number', 'error');
+                return;
+            }
+            
+            // Validate mobile number length based on location type
+            if (locationType === '0') {
+                // India: 10 digits
+                if (mobileNumber.length !== 10) {
+                    showToast('Please enter a valid 10-digit mobile number', 'error');
+                    return;
+                }
+            } else {
+                // Outside India: 7-15 digits
+                if (mobileNumber.length < 7 || mobileNumber.length > 15) {
+                    showToast('Please enter a valid mobile number (7-15 digits)', 'error');
+                    return;
+                }
+            }
+            
+            // For India, check mobile verification
+            if (locationType === '0' && mobileVerified && mobileVerified.value !== '1') {
+                showToast('Please verify your mobile number before proceeding', 'error');
+                return;
+            }
             
             // All validations passed, move to step 2
             step1Fields.style.display = 'none';
