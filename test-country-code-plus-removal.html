@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Country Code + Symbol Removal</title>
+</head>
+<body>
+    <h2>✅ Country Code + Symbol Removal Implementation</h2>
+    
+    <h3>🎯 Requirement</h3>
+    <p>Remove the "+" symbol from country codes before sending to API endpoints.</p>
+    <ul>
+        <li><strong>Before:</strong> <code>country_code: "+91"</code></li>
+        <li><strong>After:</strong> <code>country_code: "91"</code></li>
+    </ul>
+    
+    <h3>📋 API Endpoints Updated</h3>
+    <ol>
+        <li><strong>/api/send-otp</strong> - Mobile OTP sending</li>
+        <li><strong>/api/verify-otp</strong> - Mobile OTP verification</li>
+        <li><strong>/api/register</strong> - User registration</li>
+    </ol>
+    
+    <h3>🔧 Implementation Details</h3>
+    
+    <h4>1. Send OTP Function</h4>
+    <ul>
+        <li>Added: <code>const cleanCountryCode = countryCode.replace(/^\+/, '');</code></li>
+        <li>Updated payload: <code>country_code: cleanCountryCode</code></li>
+        <li>Example: "+91" → "91", "+1" → "1", "+44" → "44"</li>
+    </ul>
+    
+    <h4>2. Verify OTP Function</h4>
+    <ul>
+        <li>Added: <code>const cleanCountryCode = countryCode.replace(/^\+/, '');</code></li>
+        <li>Updated FormData: <code>formData.append('country_code', cleanCountryCode)</code></li>
+        <li>Applies to mobile verification only (email doesn't use country codes)</li>
+    </ul>
+    
+    <h4>3. Registration Payload</h4>
+    <ul>
+        <li>Updated: <code>.replace(/^\+/, '')</code> applied to country code selection</li>
+        <li>Handles both selected country codes and fallback values</li>
+        <li>Works for India (+91 → 91) and Outside India (any country code)</li>
+    </ul>
+    
+    <h3>🧪 Test Examples</h3>
+    
+    <h4>India User (location_type: 0)</h4>
+    <ul>
+        <li><strong>Send OTP:</strong> <code>{"mobile_number": "9876543210", "country_code": "91", "location_type": 0}</code></li>
+        <li><strong>Verify OTP:</strong> <code>mobile_number=9876543210&country_code=91&location_type=0&otp=123456</code></li>
+        <li><strong>Registration:</strong> <code>{"country_code": "91", ...}</code></li>
+    </ul>
+    
+    <h4>Outside India User (location_type: 1)</h4>
+    <ul>
+        <li><strong>Registration:</strong> <code>{"country_code": "1", ...}</code> (for US)</li>
+        <li><strong>Registration:</strong> <code>{"country_code": "44", ...}</code> (for UK)</li>
+        <li><strong>Registration:</strong> <code>{"country_code": "61", ...}</code> (for Australia)</li>
+    </ul>
+    
+    <h3>✨ Benefits</h3>
+    <ul>
+        <li><strong>API Compatibility:</strong> Backend receives clean numeric country codes</li>
+        <li><strong>Consistent Format:</strong> All country codes sent without + symbol</li>
+        <li><strong>No Breaking Changes:</strong> UI still shows + symbol to users</li>
+        <li><strong>Universal Solution:</strong> Works for all 100+ supported country codes</li>
+    </ul>
+    
+    <h3>🔍 Verification</h3>
+    <p>All API calls now send country codes in numeric format (91, 1, 44, etc.) while maintaining the user-friendly display format (+91, +1, +44, etc.) in the UI.</p>
+</body>
+</html>

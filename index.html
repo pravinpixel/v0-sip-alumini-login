@@ -2683,6 +2683,9 @@ if (levelTrigger && levelDropdown) {
             resendLink.style.opacity = '0.5';
         }
         
+        // Remove + symbol from country code
+        const cleanCountryCode = countryCode.replace(/^\+/, '');
+        
         fetch('https://sip-admin.designonline.in/api/send-otp', {
             method: 'POST',
             headers: {
@@ -2690,7 +2693,7 @@ if (levelTrigger && levelDropdown) {
             },
             body: JSON.stringify({
                 mobile_number: mobileNumber, // Send mobile number without country code
-                country_code: countryCode, // Send country code separately
+                country_code: cleanCountryCode, // Send country code without + symbol
                 location_type: 0
             })
         })
@@ -3160,8 +3163,11 @@ if (levelTrigger && levelDropdown) {
                 const countryCode = extracted.countryCode;
                 const mobileNumber = extracted.mobileNumber;
                 
+                // Remove + symbol from country code
+                const cleanCountryCode = countryCode.replace(/^\+/, '');
+                
                 formData.append('mobile_number', mobileNumber); // Send mobile number without country code
-                formData.append('country_code', countryCode); // Send country code separately
+                formData.append('country_code', cleanCountryCode); // Send country code without + symbol
                 formData.append('location_type', '0');
             } else if (currentVerificationMode === 'email') {
                 // Outside India: Send email
@@ -3577,7 +3583,7 @@ if (levelTrigger && levelDropdown) {
             state_id: parseInt(stateId),
             email: email || "vijin1697@gmail.com",
             mobile_number: mobileNumber, // This now contains only the mobile number without country code
-            country_code: document.getElementById('country-code-select') ? document.getElementById('country-code-select').value : (locationType === 0 ? "+91" : "+1"), // Get actual selected country code
+            country_code: (document.getElementById('country-code-select') ? document.getElementById('country-code-select').value : (locationType === 0 ? "+91" : "+1")).replace(/^\+/, ''), // Remove + symbol from country code
             occupation: occupation,
             current_location: currentLocation,
             level_completed: levelCompleted,
