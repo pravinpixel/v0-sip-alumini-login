@@ -2063,6 +2063,21 @@ if (levelTrigger && levelDropdown) {
                 // verifyOtpBtn.style.display = 'inline-block';
                 // otpTimer.classList.add('show');
                 switchLocationUI('0');
+                emailOtpInputLocation.style.display = "none";
+                emailOtpInput.classList.remove('otp-input-visible');
+                emailOtpInput.classList.add('otp-input-field');
+                emailOtpInput.style.display = 'none';
+                emailOtpInput.value = '';
+                verifyEmailOtpBtn.style.display = "none";
+                verifyEmailOtpBtn.classList.add('d-none');
+                verifyEmailOtpBtn.disabled = true;
+                editEmailBtn.classList.remove('show');
+                editEmailBtn.style.display = "none";
+                cancelEmailBtn.classList.remove('show');
+                cancelEmailBtn.style.display = "none";
+                emailOtpTimer.classList.remove('show');
+                emailOtpTimer.textContent = '';
+                emailOtpTimer.style.display = 'none';
             }
         });
         
@@ -2287,8 +2302,13 @@ if (levelTrigger && levelDropdown) {
                 // otpInput.focus();
                 otpInput.style.display = "none";
                 emailOtpInputLocation.style.display = "block";
+                emailOtpInput.classList.add('otp-input-visible');
+                emailOtpInput.classList.remove('otp-input-field');
+                emailOtpInput.style.display = 'block';
+                emailOtpInput.focus();
                 verifyEmailOtpBtn.classList.remove('d-none');
                 verifyEmailOtpBtn.style.display = "block";
+                verifyEmailOtpBtn.disabled = false;
                 
                 // Show verify OTP button
                 if (verifyOtpBtn) {
@@ -2942,7 +2962,7 @@ if (levelTrigger && levelDropdown) {
             
             // Hide verification status
             verificationStatus.style.display = 'none';
-            verificationStatus.textContent = '';
+            // verificationStatus.textContent = '';
             
             // Hide OTP input
             otpInput.classList.remove('otp-input-visible');
@@ -2982,8 +3002,9 @@ if (levelTrigger && levelDropdown) {
     if (cancelMobileBtn) {
         cancelMobileBtn.addEventListener('click', function() {
             // Restore the verified mobile number
-            mobileInput.value = verifiedMobile;
+            // mobileInput.value = verifiedMobile;
             mobileInput.readOnly = true;
+            nextStepBtn.disabled = false;
             
             // Restore verification state
             mobileVerified.value = '1';
@@ -3055,7 +3076,10 @@ if (levelTrigger && levelDropdown) {
             // Hide OTP input
             otpInput.classList.remove('otp-input-visible');
             otpInput.classList.add('otp-input-field');
+            emailOtpInput.classList.remove('otp-input-visible');
+            emailOtpInput.classList.add('otp-input-field');
             emailOtpInput.style.display = 'none';
+            emailOtpInput.classList.add('d-none');
             emailOtpInput.value = '';
             verifyEmailOtpBtn.classList.add('d-none');
             
@@ -3587,6 +3611,9 @@ if (levelTrigger && levelDropdown) {
             // All validations passed, move to step 2
             step1Fields.style.display = 'none';
             step2Fields.style.display = 'block';
+            const yOffset = -150;
+            const y = step2Fields.getBoundingClientRect().top + window.pageYOffset + yOffset;
+            window.scrollTo({ top: y, behavior: 'smooth' });
         });
         
         prevStepBtn.addEventListener('click', function() {
@@ -4118,8 +4145,11 @@ document.addEventListener('DOMContentLoaded', function() {
       showBtn.style.display = 'none';
       form.style.display = 'none';
       noUI.style.display = 'block';
-      noUI.scrollIntoView({ behavior: 'smooth' });
+    //   noUI.scrollIntoView({ behavior: 'smooth' });
     }
+    const yOffset = -200;
+    const y = noUI.getBoundingClientRect().top + window.pageYOffset + yOffset;
+    window.scrollTo({ top: y, behavior: 'smooth' });
   }
 
   // Page load (Yes default)
@@ -4132,7 +4162,11 @@ document.addEventListener('DOMContentLoaded', function() {
     form.style.display = 'block';
     showBtn.style.display = 'none';
     noUI.style.display = 'none';
-    form.scrollIntoView({ behavior: 'smooth' });
+    // form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const yOffset = -150;
+    const y = form.getBoundingClientRect().top + window.pageYOffset + yOffset;
+
+    window.scrollTo({ top: y, behavior: 'smooth' });
   });
 </script>
 
