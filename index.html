@@ -309,7 +309,7 @@
                       <label for="no_register_form" class="open_form">No</label><br>
                   </div>
 
-                  <button type="button" id="showRegistrationBtn" class="common_btn" style="display:none;">
+                  <button type="button" id="showRegistrationBtn" class="common_btn" style="display:none; cursor: pointer;">
                       Continue Registration
                   </button>
 
@@ -450,6 +450,13 @@
                             <button type="button" id="verify-email-btn" class="verify-btn" disabled>Verify</button>
                             <span id="email-verification-status" class="verify-status"></span>
                         </div>
+
+                        <div class="email-otp-verify-wrapper" style="position: relative;">
+                            <input type="text" id="email-otp-input" class="email-otp-input-field" placeholder="Enter Email OTP" maxlength="6" inputmode="numeric">
+                            <button type="button" id="verify-email-otp-btn" class="verify-btn" style="display: none; position: absolute; right: 10px; top: 50%;">Verify OTP</button>
+                        </div>
+
+
                         
                         <!-- Email Action Buttons -->
                         <div class="email-action-buttons">
@@ -1950,6 +1957,8 @@ if (levelTrigger && levelDropdown) {
     const verifyMobileBtn = document.getElementById('verify-mobile-btn');
     const verifyEmailBtn = document.getElementById('verify-email-btn');
     const otpInputLocation = document.getElementById('otp-input');
+    const emailOtpInputLocation = document.getElementById('email-otp-input');
+    const verifyEmailOtpBtn = document.getElementById('verify-email-otp-btn');
     const emailInputInWrapper = document.querySelector('.email-input');
     
     let currentVerificationMode = 'mobile'; // 'mobile' for India (0), 'email' for Outside India (1)
@@ -1976,6 +1985,7 @@ if (levelTrigger && levelDropdown) {
             // Update button text
             if (verifyMobileBtn) verifyMobileBtn.textContent = 'Verify Mobile';
             if (otpInputLocation) otpInputLocation.placeholder = 'Enter Mobile OTP';
+            if (emailOtpInputLocation) emailOtpInputLocation.style.display = 'none';
             
             // Country Code Logic for India
             const countryCodeWrapper = document.querySelector('.country-code-wrapper');
@@ -2050,12 +2060,16 @@ if (levelTrigger && levelDropdown) {
     if (locationIndiaRadio && locationOutsideIndiaRadio) {
         locationIndiaRadio.addEventListener('change', function() {
             if (this.checked) {
+                // verifyOtpBtn.style.display = 'inline-block';
+                // otpTimer.classList.add('show');
                 switchLocationUI('0');
             }
         });
         
         locationOutsideIndiaRadio.addEventListener('change', function() {
             if (this.checked) {
+                verifyOtpBtn.style.display = 'none';
+                otpTimer.classList.remove('show');
                 switchLocationUI('1');
             }
         });
@@ -2216,6 +2230,7 @@ if (levelTrigger && levelDropdown) {
             if (currentVerificationMode === 'email') {
                 // Email OTP logic
                 sendEmailOTP();
+                // emailOtpInputLocation.style.display = "block";
             }
         });
     }
@@ -2266,15 +2281,19 @@ if (levelTrigger && levelDropdown) {
                 }
                 
                 // Show OTP input
-                otpInput.classList.remove('otp-input-field');
-                otpInput.classList.add('otp-input-visible');
-                otpInput.style.display = 'block';
-                otpInput.focus();
+                // otpInput.classList.remove('otp-input-field');
+                // otpInput.classList.add('otp-input-visible');
+                // otpInput.style.display = 'block';
+                // otpInput.focus();
+                otpInput.style.display = "none";
+                emailOtpInputLocation.style.display = "block";
+                verifyEmailOtpBtn.classList.remove('d-none');
+                verifyEmailOtpBtn.style.display = "block";
                 
                 // Show verify OTP button
                 if (verifyOtpBtn) {
                    
-                    verifyOtpBtn.style.display = 'inline-block';
+                    verifyOtpBtn.style.display = 'none';
                     verifyOtpBtn.disabled = false; // Enable by default
                 }
                 
@@ -2289,8 +2308,8 @@ if (levelTrigger && levelDropdown) {
                     editEmailBtn.style.display = 'inline-block';
                 }
                 if (cancelEmailBtn) {
-                    cancelEmailBtn.classList.add('show');
-                    cancelEmailBtn.style.display = 'inline-block';
+                    cancelEmailBtn.classList.remove('show');
+                    cancelEmailBtn.style.display = 'none';
                 }
                 
                 // Show email action buttons container
@@ -2458,6 +2477,7 @@ if (levelTrigger && levelDropdown) {
     const editMobileBtn = document.getElementById('edit-mobile-btn');
     const cancelMobileBtn = document.getElementById('cancel-mobile-btn');
     const otpInput = document.getElementById('otp-input');
+    const emailOtpInput = document.getElementById('email-otp-input');
     const verifyOtpBtn = document.getElementById('verify-otp-btn');
     const verificationStatus = document.getElementById('verification-status');
     const mobileVerified = document.getElementById('mobile-verified');
@@ -2722,6 +2742,7 @@ if (levelTrigger && levelDropdown) {
                 if (verifyOtpBtn) {
                     
                     verifyOtpBtn.style.display = 'inline-block';
+                    verifyOtpBtn.classList.remove('d-none');
                     verifyOtpBtn.disabled = false; // Enable by default
                 }
                 
@@ -2910,6 +2931,7 @@ if (levelTrigger && levelDropdown) {
             // Show verify button
             verifyBtn.classList.remove('d-none');
             verifyBtn.textContent = 'Verify';
+            verifyBtn.style.display = 'inline-block';
             
             // Set verify button state based on current conditions
             const isValidLength = mobileInput.value.length === 10;
@@ -2927,6 +2949,11 @@ if (levelTrigger && levelDropdown) {
             otpInput.classList.add('otp-input-field');
             otpInput.style.display = 'none';
             otpInput.value = '';
+
+            if (verifyOtpBtn) { // && otpInput.value === ''
+            verifyOtpBtn.style.display = 'none';
+            verifyOtpBtn.classList.add('d-none');
+        }
             
             // Clear and hide timer
             if (timerInterval) clearInterval(timerInterval);
@@ -3012,10 +3039,12 @@ if (levelTrigger && levelDropdown) {
             editEmailBtn.style.display = 'none';
             
             // Show verify email button
-            if (verifyEmailBtn) {
-                verifyEmailBtn.style.display = 'inline-block';
-                verifyEmailBtn.disabled = false;
-            }
+            // if (verifyEmailBtn) {
+            //     verifyEmailBtn.style.display = 'inline-block';
+            //     verifyEmailBtn.disabled = false;
+            // }
+            verifyEmailBtn.style.display = 'inline-block';
+            verifyEmailBtn.classList.remove('d-none');
             
             // Hide email verification status
             const emailVerificationStatus = document.getElementById('email-verification-status');
@@ -3026,8 +3055,9 @@ if (levelTrigger && levelDropdown) {
             // Hide OTP input
             otpInput.classList.remove('otp-input-visible');
             otpInput.classList.add('otp-input-field');
-            otpInput.style.display = 'none';
-            otpInput.value = '';
+            emailOtpInput.style.display = 'none';
+            emailOtpInput.value = '';
+            verifyEmailOtpBtn.classList.add('d-none');
             
             // Clear and hide email timer
             if (timerInterval) clearInterval(timerInterval);
@@ -3039,8 +3069,8 @@ if (levelTrigger && levelDropdown) {
             enableLocationSelection();
             
             // Show cancel button
-            cancelEmailBtn.classList.add('show');
-            cancelEmailBtn.style.display = 'inline-block';
+            cancelEmailBtn.classList.remove('show');
+            cancelEmailBtn.style.display = 'none';
             
             // Show email action buttons container
             const emailActionButtons = document.querySelector('.email-action-buttons');
@@ -3071,10 +3101,12 @@ if (levelTrigger && levelDropdown) {
             
             // Show email verification status
             const emailVerificationStatus = document.getElementById('email-verification-status');
-            if (emailVerificationStatus) {
+            if (emailVerificationStatus.textContent !== '') {
                 emailVerificationStatus.textContent = '✓ Verified';
                 emailVerificationStatus.style.color = '#249829';
                 emailVerificationStatus.style.display = 'block';
+            } else {
+                emailVerificationStatus.style.display = 'none';
             }
             
             // Hide OTP input
@@ -3109,6 +3141,113 @@ if (levelTrigger && levelDropdown) {
     }
     
     // Verify OTP button click handler
+
+    if (verifyEmailOtpBtn) {
+        verifyEmailOtpBtn.addEventListener('click', function(e) {
+            e.preventDefault(); // Prevent any form submission
+            e.stopPropagation(); // Stop event bubbling
+            
+            const otp = emailOtpInput.value;
+            
+            if (otp.length !== 6) {
+                // showToast('Please enter a valid 6-digit OTP', 'error');
+                return;
+            }
+            
+            // Disable button during verification
+            verifyEmailOtpBtn.disabled = true;
+            verifyEmailOtpBtn.textContent = 'Verifying...';
+            
+            const formData = new FormData();
+            
+            // Send different data based on verification mode
+            if (currentVerificationMode === 'email') {
+                // Outside India: Send email
+                const email = emailInputInWrapper ? emailInputInWrapper.value.trim() : '';
+                formData.append('email', email);
+                formData.append('location_type', '1');
+            }
+            
+            formData.append('otp', otp);
+            
+            fetch('https://sip-admin.designonline.in/api/verify-otp', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                return response.json();
+            })
+            .then(data => {
+                if (data.status || data.success) {
+                    // Handle success for both mobile and email verification
+                    if (currentVerificationMode === 'email') {
+                        // For email verification
+                        const emailInput = emailInputInWrapper;
+                        if (emailInput) {
+                            emailInput.readOnly = true;
+                        }
+                        
+                        // Update email verification status
+                        const emailVerificationStatus = document.getElementById('email-verification-status');
+                        if (emailVerificationStatus) {
+                            emailVerificationStatus.textContent = '✓ Verified';
+                            emailVerificationStatus.style.color = '#249829';
+                            emailVerificationStatus.style.display = 'block';
+                        }
+                    }
+                    
+                    // Disable location selection after verification
+                    disableLocationSelection();
+                    
+                    emailOtpInput.classList.remove('otp-input-visible');
+                    emailOtpInput.classList.add('otp-input-field');
+                    emailOtpInput.style.display = 'none';
+                    
+                    // Hide verify OTP button
+                    verifyEmailOtpBtn.style.display = 'none';
+                    
+                    // Show appropriate edit button based on verification mode
+                    if (currentVerificationMode === 'email') {
+                        editEmailBtn.classList.add('show');
+                        editEmailBtn.style.display = 'inline-block';
+                        cancelEmailBtn.classList.remove('show');
+                        cancelEmailBtn.style.display = 'none';
+                        
+                        // Show email action buttons container
+                        const emailActionButtons = document.querySelector('.email-action-buttons');
+                        if (emailActionButtons) {
+                            emailActionButtons.style.display = 'flex';
+                        }
+                    }
+                    
+                    // Clear appropriate timer based on verification mode
+                    if (timerInterval) clearInterval(timerInterval);
+                    if (currentVerificationMode === 'email') {
+                        emailOtpTimer.classList.remove('show');
+                        emailOtpTimer.style.display = 'none';
+                    }
+                    
+                    showToast('OTP verified successfully!', 'success');
+                    verifyEmailOtpBtn.textContent = 'Verify OTP';
+                } else {
+                    showToast((data.message || 'Please try again'), 'error');
+                    emailOtpInput.value = '';
+                    
+                    // Re-enable button on error
+                    verifyEmailOtpBtn.disabled = false;
+                    verifyEmailOtpBtn.textContent = 'Verify OTP';
+                }
+            })
+            .catch(error => {
+                showToast('Failed to verify OTP. Please try again.', 'error');
+                emailOtpInput.value = '';
+                
+                // Re-enable button on error
+                verifyEmailOtpBtn.disabled = false;
+                verifyEmailOtpBtn.textContent = 'Verify OTP';
+            });
+        });
+    }
     
     if (verifyOtpBtn) {
         
@@ -3262,6 +3401,7 @@ if (levelTrigger && levelDropdown) {
                     }
                     
                     showToast('OTP verified successfully!', 'success');
+                    verifyOtpBtn.textContent = 'Verify OTP';
                 } else {
                     showToast((data.message || 'Please try again'), 'error');
                     otpInput.value = '';
