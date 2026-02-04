@@ -1334,9 +1334,9 @@ iframe {
     width: 100%;
 }
 
-.mobile-input {
+/* .mobile-input {
     padding-right: 90px !important;
-}
+} */
 
 .verify-btn {
     position: absolute;
@@ -3204,5 +3204,9 @@ City Other Autocomplete */
     .mobile-input-container .mobile-input {
         padding: 8px 10px;
         font-size: 13px;
+    }
+
+    .mobile-verify-wrapper .verify-btn {
+        top: 60px;
     }
 }
