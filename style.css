@@ -36,6 +36,11 @@
     transform: translateY(0);
 }
 
+html,body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
 body,
 input,
 button {
@@ -3100,6 +3105,8 @@ City Other Autocomplete */
     /* border: 1px solid #ddd; */
     border-radius: 5px;
     overflow: hidden;
+    gap: 10px;
+    border: none;
     /* background: white; */
     /* margin-bottom: 10px; */
 }
