@@ -3934,6 +3934,11 @@ if (levelTrigger && levelDropdown) {
     // Form submission
     const registrationForm = document.getElementById('alumni-registration-form');
     if (registrationForm) {
+        registrationForm.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && step1Fields.style.display !== 'none') {
+                e.preventDefault();
+            }
+        });
         registrationForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
