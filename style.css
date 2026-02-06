@@ -1371,7 +1371,7 @@ iframe {
 .verify-status {
     position: absolute;
     right: 10px;
-    top: 50%;
+    top: 29px;
     transform: translateY(-50%);
     font-size: 14px;
     font-weight: 600;
