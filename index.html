@@ -1971,7 +1971,7 @@ if (levelTrigger && levelDropdown) {
             
             // Show India UI: regular email + mobile verify wrapper
             if (regularEmailInput) regularEmailInput.style.display = 'block';
-            if (mobileVerifyWrapper) mobileVerifyWrapper.style.display = 'flex';
+            // if (mobileVerifyWrapper) mobileVerifyWrapper.style.display = 'flex';
             
             // Show verify mobile button for India
             if (verifyMobileBtn) {
@@ -2023,7 +2023,7 @@ if (levelTrigger && levelDropdown) {
             
             // Keep mobile verify wrapper visible but hide only the verify button
             if (mobileVerifyWrapper) {
-                mobileVerifyWrapper.style.display = 'flex';
+                // mobileVerifyWrapper.style.display = 'flex';
                 // Hide only the verify mobile button
                 if (verifyMobileBtn) verifyMobileBtn.style.display = 'none';
             }
@@ -2244,6 +2244,7 @@ if (levelTrigger && levelDropdown) {
 
             if (currentVerificationMode === 'email') {
                 // Email OTP logic
+                emailInputInWrapper.disabled = true;
                 sendEmailOTP();
                 // emailOtpInputLocation.style.display = "block";
             }
@@ -2722,7 +2723,7 @@ if (levelTrigger && levelDropdown) {
             resendLink.style.pointerEvents = 'none';
             resendLink.style.opacity = '0.5';
         }
-        
+        mobileInput.readOnly = true;
         // Remove + symbol from country code
         const cleanCountryCode = countryCode.replace(/^\+/, '');
         
@@ -3054,7 +3055,7 @@ if (levelTrigger && levelDropdown) {
                 emailInputInWrapper.readOnly = false;
                 emailInputInWrapper.focus();
             }
-            
+            emailInputInWrapper.disabled = false;
             // Hide edit button
             editEmailBtn.classList.remove('show');
             editEmailBtn.style.display = 'none';
@@ -3611,9 +3612,24 @@ if (levelTrigger && levelDropdown) {
             // All validations passed, move to step 2
             step1Fields.style.display = 'none';
             step2Fields.style.display = 'block';
-            const yOffset = -150;
-            const y = step2Fields.getBoundingClientRect().top + window.pageYOffset + yOffset;
-            window.scrollTo({ top: y, behavior: 'smooth' });
+            // const yOffset = -150;
+            // const y = step2Fields.getBoundingClientRect().top + window.pageYOffset + yOffset;
+            // window.scrollTo({ top: y, behavior: 'smooth' });
+            const contactSection = document.getElementById('contact');
+
+            if (contactSection) {
+                const yOffset = -150; // adjust for fixed header
+                const y =
+                    contactSection.getBoundingClientRect().top +
+                    window.pageYOffset +
+                    yOffset;
+
+                window.scrollTo({
+                    top: y,
+                    behavior: 'smooth'
+                });
+            }
+
         });
         
         prevStepBtn.addEventListener('click', function() {
@@ -3748,7 +3764,7 @@ if (levelTrigger && levelDropdown) {
             full_name: fullName,
             year_of_completion: parseInt(yearOfCompletion),
             state_id: parseInt(stateId),
-            email: email || "vijin1697@gmail.com",
+            email: email ,
             mobile_number: mobileNumber, // This now contains only the mobile number without country code
             country_code: (document.getElementById('country-code-select') ? document.getElementById('country-code-select').value : (locationType === 0 ? "+91" : "+1")).replace(/^\+/, ''), // Remove + symbol from country code
             occupation: occupation,

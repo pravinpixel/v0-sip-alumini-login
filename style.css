@@ -1332,6 +1332,7 @@ iframe {
 .mobile-verify-wrapper {
     position: relative;
     width: 100%;
+    /* margin-top: 15px; */
 }
 
 /* .mobile-input {
@@ -1340,8 +1341,8 @@ iframe {
 
 .verify-btn {
     position: absolute;
-    right: 5px;
-    top: 25px;
+    right: 9px;
+    top: 27px;
     transform: translateY(-50%);
     padding: 8px 16px;
     background: #249829;
@@ -1744,8 +1745,8 @@ imer */
     display: flex;
     justify-content: flex-end;
     gap: 15px;
-    margin-top: -22px;
-    margin-bottom: -7px;
+    /* margin-top: -22px;
+    margin-bottom: -7px; */
     width: 100%;
 }
 
@@ -2134,8 +2135,8 @@ City Other Autocomplete */
     display: flex;
     justify-content: flex-end;
     gap: 15px;
-    margin-top: -22px;
-    margin-bottom: -7px;
+    /* margin-top: -22px; */
+    /* margin-bottom: -7px; */
     width: 100%;
 }
 
@@ -3113,7 +3114,7 @@ City Other Autocomplete */
     display: flex;
     align-items: center;
     position: relative;
-    top: -7px;
+    /* top: -7px; */
     /* background: #f8f9fa; */
     /* border-right: 1px solid #ddd; */
     min-width: 120px;
@@ -3249,4 +3250,8 @@ City Other Autocomplete */
 .pincode-trigger.disabled .pincode-arrow svg,
 .center-location-trigger.disabled .center-location-arrow svg {
     opacity: 0.4;
+}
+
+#mobile-number{
+    margin-bottom: 0px;
 }
