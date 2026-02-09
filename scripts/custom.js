@@ -8,6 +8,7 @@ function populateCountryCodeSelect(locationType) {
     const currentToken = ++countryRequestToken;
 
     // CLEAR OLD OPTIONS FIRST
+    selectEl.innerHTML = '';
 
     fetch(`https://sip-admin.designonline.in/api/essentials?required=country_code&location_type=${locationType}`)
         .then(response => response.json())
@@ -40,8 +41,9 @@ function populateCountryCodeSelect(locationType) {
             });
 
             // Select first actual value
-            if (selectEl.options.length > 1) {
-                selectEl.selectedIndex = 1;
+            if (selectEl.options.length > 0) {
+                selectEl.selectedIndex = -1; // reset
+                selectEl.selectedIndex = 0;  // select first
             }
         })
         .catch(error => {
