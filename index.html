@@ -84,7 +84,7 @@
                 <p>At SIP Abacus, the impact you’ve made extends far beyond the classroom. These numbers speak of the scale and success of our alumni community, a testament to the brilliance you bring to the world.</p>
                 <ul>
                     <li>
-                        <h3>1M+ Strong Alumni</h3>
+                        <h3>A Strong & Growing Alumni Network</h3>
                         <p>A vast network of young minds who have sharpened their skills and shaped their futures with SIP.</p>
                     </li>
                     <li>
@@ -609,10 +609,10 @@
                                 </div>
                                 <div id="level-completed-dropdown" class="level-completed-dropdown">
                                     <div id="level-completed-options" class="level-completed-options">
-                                        <div class="level-completed-option" data-level="advanced_4">Advanced 4 / Level 8</div>
-                                        <div class="level-completed-option" data-level="grandmaster_a">Grandmaster A</div>
-                                        <div class="level-completed-option" data-level="grandmaster_b">Grandmaster B</div>
-                                        <div class="level-completed-option" data-level="grandmaster_c">Grandmaster C</div>
+                                        <div class="level-completed-option" data-level="Advanced 4 / Level 8">Advanced 4 / Level 8</div>
+                                        <div class="level-completed-option" data-level="Grandmaster A">Grandmaster A</div>
+                                        <div class="level-completed-option" data-level="Grandmaster B">Grandmaster B</div>
+                                        <div class="level-completed-option" data-level="Grandmaster C">Grandmaster C</div>
                                     </div>
                                 </div>
                             </div>
@@ -1971,7 +1971,7 @@ if (levelTrigger && levelDropdown) {
             
             // Show India UI: regular email + mobile verify wrapper
             if (regularEmailInput) regularEmailInput.style.display = 'block';
-            if (mobileVerifyWrapper) mobileVerifyWrapper.style.display = 'flex';
+            // if (mobileVerifyWrapper) mobileVerifyWrapper.style.display = 'flex';
             
             // Show verify mobile button for India
             if (verifyMobileBtn) {
@@ -2023,7 +2023,7 @@ if (levelTrigger && levelDropdown) {
             
             // Keep mobile verify wrapper visible but hide only the verify button
             if (mobileVerifyWrapper) {
-                mobileVerifyWrapper.style.display = 'flex';
+                // mobileVerifyWrapper.style.display = 'flex';
                 // Hide only the verify mobile button
                 if (verifyMobileBtn) verifyMobileBtn.style.display = 'none';
             }
@@ -2244,6 +2244,7 @@ if (levelTrigger && levelDropdown) {
 
             if (currentVerificationMode === 'email') {
                 // Email OTP logic
+                emailInputInWrapper.disabled = true;
                 sendEmailOTP();
                 // emailOtpInputLocation.style.display = "block";
             }
@@ -2722,7 +2723,7 @@ if (levelTrigger && levelDropdown) {
             resendLink.style.pointerEvents = 'none';
             resendLink.style.opacity = '0.5';
         }
-        
+        mobileInput.readOnly = true;
         // Remove + symbol from country code
         const cleanCountryCode = countryCode.replace(/^\+/, '');
         
@@ -3054,7 +3055,7 @@ if (levelTrigger && levelDropdown) {
                 emailInputInWrapper.readOnly = false;
                 emailInputInWrapper.focus();
             }
-            
+            emailInputInWrapper.disabled = false;
             // Hide edit button
             editEmailBtn.classList.remove('show');
             editEmailBtn.style.display = 'none';
@@ -3093,8 +3094,8 @@ if (levelTrigger && levelDropdown) {
             enableLocationSelection();
             
             // Show cancel button
-            cancelEmailBtn.classList.remove('show');
-            cancelEmailBtn.style.display = 'none';
+            cancelEmailBtn.classList.add('show');
+            editEmailBtn.style.display = 'inline-block';
             
             // Show email action buttons container
             const emailActionButtons = document.querySelector('.email-action-buttons');
@@ -3611,9 +3612,24 @@ if (levelTrigger && levelDropdown) {
             // All validations passed, move to step 2
             step1Fields.style.display = 'none';
             step2Fields.style.display = 'block';
-            const yOffset = -150;
-            const y = step2Fields.getBoundingClientRect().top + window.pageYOffset + yOffset;
-            window.scrollTo({ top: y, behavior: 'smooth' });
+            // const yOffset = -150;
+            // const y = step2Fields.getBoundingClientRect().top + window.pageYOffset + yOffset;
+            // window.scrollTo({ top: y, behavior: 'smooth' });
+            const contactSection = document.getElementById('contact');
+
+            if (contactSection) {
+                const yOffset = -150; // adjust for fixed header
+                const y =
+                    contactSection.getBoundingClientRect().top +
+                    window.pageYOffset +
+                    yOffset;
+
+                window.scrollTo({
+                    top: y,
+                    behavior: 'smooth'
+                });
+            }
+
         });
         
         prevStepBtn.addEventListener('click', function() {
@@ -3748,7 +3764,7 @@ if (levelTrigger && levelDropdown) {
             full_name: fullName,
             year_of_completion: parseInt(yearOfCompletion),
             state_id: parseInt(stateId),
-            email: email || "vijin1697@gmail.com",
+            email: email ,
             mobile_number: mobileNumber, // This now contains only the mobile number without country code
             country_code: (document.getElementById('country-code-select') ? document.getElementById('country-code-select').value : (locationType === 0 ? "+91" : "+1")).replace(/^\+/, ''), // Remove + symbol from country code
             occupation: occupation,
@@ -3934,6 +3950,11 @@ if (levelTrigger && levelDropdown) {
     // Form submission
     const registrationForm = document.getElementById('alumni-registration-form');
     if (registrationForm) {
+        registrationForm.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && step1Fields.style.display !== 'none') {
+                e.preventDefault();
+            }
+        });
         registrationForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
