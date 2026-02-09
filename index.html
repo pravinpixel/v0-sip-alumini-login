@@ -1627,6 +1627,7 @@ if (levelTrigger && levelDropdown) {
         .then(apiData => {
             if (apiData && apiData.data && apiData.data.state && Array.isArray(apiData.data.state)) {
                 const states = apiData.data.state;
+                // const sortedStates = states.sort((a, b) => a.name.localeCompare(b.name));
                 populateStates(states);
             }
         })
@@ -2187,7 +2188,7 @@ if (levelTrigger && levelDropdown) {
             if (selectedLocation === '1') { // Outside India
                 const mobileInput = document.getElementById('mobile-number');
                 if (mobileInput && !mobileInput.readOnly) {
-                    mobileInput.value = '';
+                    // mobileInput.value = '';
                     updateMobileVerifyButtonState();
                 }
             }
@@ -2309,13 +2310,13 @@ if (levelTrigger && levelDropdown) {
                 emailOtpInput.focus();
                 verifyEmailOtpBtn.classList.remove('d-none');
                 verifyEmailOtpBtn.style.display = "block";
-                verifyEmailOtpBtn.disabled = false;
+                verifyEmailOtpBtn.disabled = true;
                 
                 // Show verify OTP button
                 if (verifyOtpBtn) {
                    
                     verifyOtpBtn.style.display = 'none';
-                    verifyOtpBtn.disabled = false; // Enable by default
+                    verifyOtpBtn.disabled = true; // Enable by default
                 }
                 
                 // Hide verify email button
@@ -2764,7 +2765,7 @@ if (levelTrigger && levelDropdown) {
                     
                     verifyOtpBtn.style.display = 'inline-block';
                     verifyOtpBtn.classList.remove('d-none');
-                    verifyOtpBtn.disabled = false; // Enable by default
+                    verifyOtpBtn.disabled = true; // Enable by default
                 }
                 
                 // Show mobile action buttons container
@@ -3162,7 +3163,31 @@ if (levelTrigger && levelDropdown) {
         
         otpInput.addEventListener('input', function() {
             this.value = this.value.replace(/[^0-9]/g, '');
+
+            if (verifyOtpBtn) {
+            if (this.value.length === 6) {
+                verifyOtpBtn.disabled = false;
+            } else {
+                verifyOtpBtn.disabled = true;
+            }
+        }
         });
+    }
+
+    // Email OTP input validation
+    if (emailOtpInput) {
+        emailOtpInput.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        
+        // Enable/disable verify email OTP button based on length
+        if (verifyEmailOtpBtn) {
+            if (this.value.length === 6) {
+                verifyEmailOtpBtn.disabled = false;
+            } else {
+                verifyEmailOtpBtn.disabled = true;
+            }
+        }
+     });
     }
     
     // Verify OTP button click handler
