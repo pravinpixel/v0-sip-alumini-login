@@ -3045,9 +3045,9 @@ if (levelTrigger && levelDropdown) {
             // Hide cancel and verify buttons
             cancelEmailBtn.classList.remove('show');
             cancelEmailBtn.style.display = 'none';
-            if (verifyEmailBtn) {
-                verifyEmailBtn.style.display = 'none';
-            }
+            // if (verifyEmailBtn ) {
+            //     verifyEmailBtn.style.display = 'block';
+            // }
             
             // Show edit button
             editEmailBtn.classList.add('show');
@@ -3059,6 +3059,7 @@ if (levelTrigger && levelDropdown) {
                 emailVerificationStatus.textContent = '✓ Verified';
                 emailVerificationStatus.style.color = '#249829';
                 emailVerificationStatus.style.display = 'block';
+                verifyEmailBtn.style.display = 'none';
             } else {
                 emailVerificationStatus.style.display = 'none';
             }
