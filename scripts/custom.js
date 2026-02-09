@@ -7,36 +7,41 @@ function populateCountryCodeSelect(locationType) {
     // create a unique token for this request
     const currentToken = ++countryRequestToken;
 
-    selectEl.innerHTML = '<option value="">Loading...</option>';
-
     fetch(`https://sip-admin.designonline.in/api/essentials?required=country_code&location_type=${locationType}`)
         .then(response => response.json())
         .then(result => {
 
             //  Ignore outdated responses
-            if (currentToken !== countryRequestToken) return;
+          if (currentToken !== countryRequestToken) return;
 
             const countries = result?.data?.country_code || [];
 
-            // Reset select
-            selectEl.innerHTML = '<option value="">Select country code</option>';
-
-            // Deduplicate dial codes
-            const uniqueDialCodes = [
-                ...new Set(
-                    countries
-                        .map(item => item.dial_code)
-                        .filter(Boolean)
-                )
-            ];
-
-            // Populate options
-            uniqueDialCodes.forEach(code => {
-                const dialCode = `+${code}`;
-                selectEl.add(new Option(dialCode, dialCode));
+            // Deduplicate by dial_code
+            const unique = {};
+            countries.forEach(item => {
+                if (item.dial_code && !unique[item.dial_code]) {
+                    unique[item.dial_code] = item;
+                }
             });
 
-            //  Select first value by default
+            Object.values(unique).forEach(item => {
+                const dialCode = `+${item.dial_code}`;
+                const countryCode = item.country_code || '';
+
+                const option = document.createElement('option');
+
+                // value used in form submission
+                option.value = dialCode;
+
+                // DISPLAY: country_code BEFORE dial code
+                option.textContent = countryCode
+                    ? `${countryCode} ${dialCode}`
+                    : dialCode;
+
+                selectEl.appendChild(option);
+            });
+
+            // Select first real value by default
             if (selectEl.options.length > 1) {
                 selectEl.selectedIndex = 1;
             }
