@@ -2273,6 +2273,8 @@ if (levelTrigger && levelDropdown) {
                 if (verifyEmailBtn) {
                     verifyEmailBtn.textContent = 'Verify Email';
                     verifyEmailBtn.disabled = false;
+                    emailInputInWrapper.disabled = false;
+                    emailInputInWrapper.focus();
                 }
             }
         })
