@@ -3045,7 +3045,7 @@ City Other Autocomplete */
 
 @media (max-width: 480px) {
     .location-radio-group {
-        flex-direction: column;
+        flex-direction: row;
         align-items: flex-start;
         gap: 15px;
     }
@@ -3166,10 +3166,10 @@ City Other Autocomplete */
     outline: none;
 }
 
-.mobile-input-container:focus-within {
+/* .mobile-input-container:focus-within {
     border-color: #c41e3a;
     box-shadow: 0 0 0 2px rgba(196, 30, 58, 0.1);
-}
+} */
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
