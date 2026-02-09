@@ -8,7 +8,6 @@ function populateCountryCodeSelect(locationType) {
     const currentToken = ++countryRequestToken;
 
     // CLEAR OLD OPTIONS FIRST
-    selectEl.innerHTML = '<option value="">Select country code</option>';
 
     fetch(`https://sip-admin.designonline.in/api/essentials?required=country_code&location_type=${locationType}`)
         .then(response => response.json())
