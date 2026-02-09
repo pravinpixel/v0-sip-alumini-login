@@ -2124,6 +2124,7 @@ if (levelTrigger && levelDropdown) {
         emailInputInWrapper.addEventListener('input', function() {
             if (currentVerificationMode === 'email') {
                 const email = this.value.trim();
+                regularEmailInput.value = email;
                 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]\.[a-zA-Z]{2,}$/;
                 const isValidEmail = email && emailRegex.test(email);
                 if (verifyEmailBtn) {
@@ -2399,6 +2400,7 @@ if (levelTrigger && levelDropdown) {
         
         regularEmailInput.addEventListener('blur', function() {
             const email = this.value.trim();
+            emailInputInWrapper.value = email;
             if (email && !validateEmail(email)) {
                 if (!emailToastShown) {
                     showToast('Please enter a valid email address (e.g., user@example.com)', 'error');
