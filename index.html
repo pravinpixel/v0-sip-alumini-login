@@ -765,6 +765,21 @@ function showToast(message, type = 'success') {
     }, 4000);
 }
 
+// Function to close all dropdowns
+function closeAllDropdowns() {
+    document.querySelectorAll(
+        '.state-dropdown-open, .city-dropdown-open, .occupation-dropdown-open, ' +
+        '.pincode-dropdown-open, .center-location-dropdown-open, .level-completed-dropdown-open, ' +
+        '.level-dropdown-open'
+    ).forEach(element => {
+        element.classList.remove(
+            'state-dropdown-open', 'city-dropdown-open', 'occupation-dropdown-open',
+            'pincode-dropdown-open', 'center-location-dropdown-open', 'level-completed-dropdown-open',
+            'level-dropdown-open'
+        );
+    });
+}
+
 // Occupation select with search
 document.addEventListener('DOMContentLoaded', function() {
     const occupationTrigger = document.getElementById('occupation-trigger');
@@ -849,9 +864,17 @@ document.addEventListener('DOMContentLoaded', function() {
         // Toggle dropdown
         occupationTrigger.addEventListener('click', function(e) {
             e.stopPropagation();
-            occupationDropdown.classList.toggle('occupation-dropdown-open');
-            occupationWrapper.classList.toggle('occupation-dropdown-open');
-            if (occupationDropdown.classList.contains('occupation-dropdown-open')) {
+            const isOpen = occupationWrapper.classList.contains('occupation-dropdown-open');
+            
+            // Close all other dropdowns
+            closeAllDropdowns();
+            
+            if (isOpen) {
+                occupationDropdown.classList.remove('occupation-dropdown-open');
+                occupationWrapper.classList.remove('occupation-dropdown-open');
+            } else {
+                occupationDropdown.classList.add('occupation-dropdown-open');
+                occupationWrapper.classList.add('occupation-dropdown-open');
                 occupationSearch.focus();
             }
         });
@@ -922,9 +945,18 @@ if (levelTrigger && levelDropdown) {
   levelTrigger.addEventListener('click', e => {
 
     e.stopPropagation();
-
-    levelDropdown.classList.toggle('level-dropdown-open');
-    levelWrapper.classList.toggle('level-dropdown-open');
+    const isOpen = levelWrapper.classList.contains('level-dropdown-open');
+    
+    // Close all other dropdowns
+    closeAllDropdowns();
+    
+    if (isOpen) {
+      levelDropdown.classList.remove('level-dropdown-open');
+      levelWrapper.classList.remove('level-dropdown-open');
+    } else {
+      levelDropdown.classList.add('level-dropdown-open');
+      levelWrapper.classList.add('level-dropdown-open');
+    }
   });
 
   levelDropdown.addEventListener('click', e => {
@@ -1119,8 +1151,18 @@ if (levelTrigger && levelDropdown) {
         // Toggle dropdown
         stateTrigger.addEventListener('click', function(e) {
             e.stopPropagation();
-            stateDropdown.classList.toggle('state-dropdown-open');
-            stateWrapper.classList.toggle('state-dropdown-open');
+            const isOpen = stateWrapper.classList.contains('state-dropdown-open');
+            
+            // Close all other dropdowns
+            closeAllDropdowns();
+            
+            if (isOpen) {
+                stateDropdown.classList.remove('state-dropdown-open');
+                stateWrapper.classList.remove('state-dropdown-open');
+            } else {
+                stateDropdown.classList.add('state-dropdown-open');
+                stateWrapper.classList.add('state-dropdown-open');
+            }
         });
         
         // Close on outside click
@@ -1456,8 +1498,18 @@ if (levelTrigger && levelDropdown) {
         cityTrigger.addEventListener('click', function(e) {
             if (!this.classList.contains('disabled')) {
                 e.stopPropagation();
-                cityDropdown.classList.toggle('city-dropdown-open');
-                cityWrapper.classList.toggle('city-dropdown-open');
+                const isOpen = cityWrapper.classList.contains('city-dropdown-open');
+                
+                // Close all other dropdowns
+                closeAllDropdowns();
+                
+                if (isOpen) {
+                    cityDropdown.classList.remove('city-dropdown-open');
+                    cityWrapper.classList.remove('city-dropdown-open');
+                } else {
+                    cityDropdown.classList.add('city-dropdown-open');
+                    cityWrapper.classList.add('city-dropdown-open');
+                }
             }
         });
         
@@ -1727,9 +1779,7 @@ if (levelTrigger && levelDropdown) {
                 const isOpen = pincodeWrapper.classList.contains('pincode-dropdown-open');
                 
                 // Close all other dropdowns
-                document.querySelectorAll('.state-select-wrapper, .city-wrapper, .occupation-select-wrapper').forEach(wrapper => {
-                    wrapper.classList.remove('state-dropdown-open', 'city-dropdown-open', 'occupation-dropdown-open');
-                });
+                closeAllDropdowns();
                 
                 if (isOpen) {
                     pincodeWrapper.classList.remove('pincode-dropdown-open');
@@ -1759,9 +1809,7 @@ if (levelTrigger && levelDropdown) {
                 const isOpen = centerLocationWrapper.classList.contains('center-location-dropdown-open');
                 
                 // Close all other dropdowns
-                document.querySelectorAll('.state-select-wrapper, .city-wrapper, .occupation-select-wrapper, .pincode-wrapper').forEach(wrapper => {
-                    wrapper.classList.remove('state-dropdown-open', 'city-dropdown-open', 'occupation-dropdown-open', 'pincode-dropdown-open');
-                });
+                closeAllDropdowns();
                 
                 if (isOpen) {
                     centerLocationWrapper.classList.remove('center-location-dropdown-open');
@@ -1793,9 +1841,7 @@ if (levelTrigger && levelDropdown) {
             const isOpen = levelCompletedWrapper.classList.contains('level-completed-dropdown-open');
             
             // Close all other dropdowns
-            document.querySelectorAll('.state-select-wrapper, .city-wrapper, .occupation-select-wrapper, .pincode-wrapper, .center-location-wrapper').forEach(wrapper => {
-                wrapper.classList.remove('state-dropdown-open', 'city-dropdown-open', 'occupation-dropdown-open', 'pincode-dropdown-open', 'center-location-dropdown-open');
-            });
+            closeAllDropdowns();
             
             if (isOpen) {
                 levelCompletedWrapper.classList.remove('level-completed-dropdown-open');
