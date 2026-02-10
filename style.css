@@ -1898,6 +1898,7 @@ City Other Autocomplete */
     align-items: center;
     cursor: pointer;
     padding-right: 45px;
+    text-align: left;
 }
 
 .state-trigger:focus {
@@ -1975,6 +1976,7 @@ City Other Autocomplete */
     transition: background-color 0.2s ease;
     font-size: 16px;
     color: #333;
+    text-align: left;
 }
 
 .state-options>div:last-child {
@@ -1989,6 +1991,7 @@ City Other Autocomplete */
 .city-wrapper {
     position: relative;
     width: 100%;
+    text-align: left;
     /* margin-bottom: 15px; */
 }
 
@@ -2485,6 +2488,7 @@ City Other Autocomplete */
 .pincode-wrapper {
     position: relative;
     margin-bottom: 20px;
+    text-align: left;
 }
 
 .pincode-select-wrapper {
@@ -2633,6 +2637,7 @@ City Other Autocomplete */
 .center-location-wrapper {
     position: relative;
     margin-bottom: 20px;
+    text-align: left;
 }
 
 .center-location-select-wrapper {
@@ -2962,6 +2967,7 @@ City Other Autocomplete */
 /* Location Selection Radio Buttons */
 .location-selection-wrapper {
     margin-bottom: 20px;
+    text-align: left;
 }
 
 .location-selection-label {
