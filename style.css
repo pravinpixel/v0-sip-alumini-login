@@ -1420,6 +1420,25 @@ iframe {
     cursor: not-allowed;
 }
 
+/* Email Verify Wrapper Styles */
+.email-verify-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.email-verify-wrapper .email-input {
+    padding-right: 100px;
+    margin-bottom: 0;
+}
+
+.email-verify-wrapper .verify-btn {
+    position: absolute;
+    right: 9px;
+    /* top: 50%; */
+    transform: translateY(-50%);
+}
+
 /* Occupation Select Styles */
 .occupation-wrapper {
     position: relative;
@@ -3212,8 +3231,30 @@ City Other Autocomplete */
     }
 
     .mobile-verify-wrapper .verify-btn {
-        top: 60px;
+        position: relative;
+        right: 0;
+        width: 100%;
     }
+
+    .email-verify-wrapper {
+        display: flex;
+        flex-direction: column;
+        /* gap: 10px; */
+    }
+
+    .email-verify-wrapper .email-input {
+        padding-right: 15px;
+        margin-bottom: 0;
+    }
+
+    .email-verify-wrapper .verify-btn {
+        position: relative;
+        right: 0;
+        top: 0;
+        transform: none;
+        width: 100%;
+    }
+
 }
 
 .pincode-trigger,
