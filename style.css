@@ -572,7 +572,7 @@ header .container nav ul li a:hover {
     gap: 40px;
     max-width: 850px;
     position: relative;
-    z-index: -1;
+    /* z-index: -1; */
 }
 
 .faq .container .accordion {
